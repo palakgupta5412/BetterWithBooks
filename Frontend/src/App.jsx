@@ -8,6 +8,7 @@ import Suggest from "./components/Suggest";
 import Cursor from "./components/Cursor";
 import Cards from "./components/Cards.jsx";
 import Quotes from "./pages/Quotes.jsx";
+import CreateQuotes from "./components/CreateQuotes.jsx";
 
 function App() {
   return (
@@ -16,11 +17,16 @@ function App() {
       <Cursor />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+
         <Route path="/login" element={<Login />} />
-        <Route path="/mytbr" element={<Tbr />} />
+        <Route path="/mytbr" element={<Cards />} />
         <Route path="/explore" element={<Info />} />
-        <Route path='/profile' element={<Cards />} />
+        <Route path='/mytbr' element={<Cards />} />
+        <Route path='/library' element={<Tbr />} />
         <Route path='/quotes' element={<Quotes />} />
+        <Route path='/createquote' element={<CreateQuotes />} /> 
+        {/* <Route path='/myquotes' element={< />} />  */}
       </Routes>
     </>
   );

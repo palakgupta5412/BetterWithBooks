@@ -139,6 +139,14 @@ const Loader = ({ onLoadingComplete }) => {
       animate={stage} // "initial", "enter", or "exit"
     >
         {/* Text Layer - Fades out when exiting */}
+        <motion.div
+          className="h-1 w-100 bg-white transition-all duration-2000 fixed top-0 left-0 z-20"
+          animate={{ width: stage === "initial" ? "100%" : "0%" }}
+          transition={{ duration: 1.5, ease: [0.76, 0, 0.24, 1] }}
+          style={{ opacity: stage === "exit" ? 0 : 1 }}
+        >
+          {/* progress loader */}
+        </motion.div>
         <motion.div 
             className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
             animate={{ opacity: stage === "exit" ? 0 : 1 }}

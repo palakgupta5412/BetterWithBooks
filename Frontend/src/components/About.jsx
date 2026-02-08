@@ -54,7 +54,7 @@ const About = () => {
             id : 6 ,
             title : "About this space",
             image : "/aboutImg/6.jpg",
-            description : "Better with Books is built for readers who don’t just finish books — they remember them. A calm, bookshelf-like place to track what you read, save what you want to read next, and much more.",
+            description : "A calm, bookshelf-like place to track what you read, save what you want to read next, and much more.",
             icon : <ImInfo size={32} className='text-center text-[#dda200] group-hover:text-white'/>
         },
         {

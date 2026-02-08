@@ -27,8 +27,8 @@ const Hero = () => {
           </div>
 
           <div className='mt-24 flex justify-center items-center gap-7'>
-            <Button onClick={()=>navigate('/mytbr')} text="Explore Library" className="text-sm" />
-            <Button onClick={()=>navigate('/profile')} text="Add to my TBR" className="text-sm" />
+            <Button onClick={()=>navigate('/library')} text="Explore Library" className="text-sm" />
+            <Button onClick={()=>navigate('/mytbr')} text="Add to my TBR" className="text-sm" />
           </div>
           
         </div>

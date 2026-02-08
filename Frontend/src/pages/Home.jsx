@@ -48,9 +48,9 @@ const Home = () => {
                 <Button onClick={()=>navigate('/login')} text={"Register"} className={"text-xs text-center"}/>
             </div>
         </div>
-        <div style={{backgroundImage: "url('/quoteBG.png')" , backgroundSize: "cover" , backgroundRepeat: "no-repeat" }} className='w-full h-64 overflow-hidden flex justify-between px-10'>
+        <div style={{backgroundImage: "url('https://res.cloudinary.com/dc8ryewn6/image/upload/v1770528335/quoteBG_sacg36.png')" , backgroundSize: "cover" , backgroundRepeat: "no-repeat" }} className='w-full h-64 overflow-hidden flex justify-between px-10'>
             <div className='w-1/2 h-full flex justify-start items-center pt-4'>
-                <img src="/logoF.png" className='object-cover' alt="Above Nav" />
+                <img src="https://res.cloudinary.com/dc8ryewn6/image/upload/v1770528333/logoF_wtyi0t.png" className='object-cover' alt="Above Nav" />
             </div>
             <div ref={containerRef}  className='whitespace-nowrap overflow-hidden font-titan text-5xl w-1/2 text-right text-[#D8CFC4] flex flex-col justify-center items-end pt-4 pr-20 relative'>
                 <div className='flex relative gap-3 justify-start items-start'>
@@ -74,7 +74,7 @@ const Home = () => {
             playsInline
             className="absolute top-0 left-0 w-full h-full object-cover z-0"
           >
-            <source src="/hero.mp4" type="video/mp4" />
+            <source src="https://res.cloudinary.com/dc8ryewn6/video/upload/v1770528335/hero_dbqkvx.mp4" type="video/mp4" />
           </video>
 
           {/* Overlay to darken video for text readability (Matches your theme) */}
