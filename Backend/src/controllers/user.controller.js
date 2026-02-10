@@ -3,26 +3,29 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+// --- HELPER: Generate Tokens ---
 const generateAccessAndRefreshToken = async(userId) => {
-    // We fetch the user to ensure we have the latest version
-    const user = await User.findById(userId); 
-    
+    const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
-    // Save the Refresh Token in the Database
     user.refreshToken = refreshToken;
-    
-    // ValidateBeforeSave: false prevents checking other required fields like 'password'
-    await user.save({ validateBeforeSave: false }); 
+    await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
 }
 
-const register = asyncHandler( async (req, res) => {
+// --- CONFIG: Cookie Options for Localhost ---
+// secure: true ONLY works on HTTPS. On localhost (HTTP), it must be false.
+const options = {
+    httpOnly: true,
+    secure: false, // CHANGE TO FALSE FOR LOCALHOST
+    sameSite: "lax" 
+};
 
+// 1. REGISTER (Now logs you in automatically!)
+const register = asyncHandler( async (req, res) => {
     const { name , email , password } = req.body;
-    
     console.log("🔥 REGISTER ROUTE HIT 🔥");
 
     if([name , email , password].some((field)=>field?.trim() === "")){
@@ -35,8 +38,8 @@ const register = asyncHandler( async (req, res) => {
     } 
 
     const newUser = await User.create({
-        name , 
-        email , 
+        name, 
+        email, 
         password 
     });
 
@@ -46,14 +49,22 @@ const register = asyncHandler( async (req, res) => {
         throw new ApiError(500 , "Error creating user");
     }
 
-    return res.status(201).json(
-        new ApiResponse(201 , "User created successfully" , createdUser)
+    // --- FIX: GENERATE TOKENS IMMEDIATELY ---
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(newUser._id);
+
+    return res
+    .status(201)
+    .cookie("accessToken", accessToken, options) // Send Cookie
+    .cookie("refreshToken", refreshToken, options) // Send Cookie
+    .json(
+        new ApiResponse(201 , { user: createdUser, accessToken, refreshToken } , "User registered and logged in")
     );
-    
 });
 
+// 2. LOGIN
 const login = asyncHandler( async (req, res) => {
     const { email , password } = req.body;
+    
     if(!(email && password)){
         throw new ApiError(400 , "Email and password are required");
     }
@@ -69,32 +80,24 @@ const login = asyncHandler( async (req, res) => {
     }
 
     const { accessToken , refreshToken } = await generateAccessAndRefreshToken(user._id);
-
     const loggedUser = await User.findById(user._id).select('-password -refreshToken');
 
-    const options = {
-      httpOnly: true,
-      secure: true,      
-      sameSite: "none"
-    };
-
-    return res.status(200)
-    .cookie("accessToken" , accessToken , options)
+    return res
+    .status(200)
+    .cookie("accessToken" , accessToken , options) // Uses the HTTP-friendly options
     .cookie("refreshToken" , refreshToken , options)
-    .json(new ApiResponse(200 , { user : loggedUser , accessToken , refreshToken } , "User logged in successfully"));
+    .json(
+        new ApiResponse(200 , { user : loggedUser , accessToken , refreshToken } , "User logged in successfully")
+    );
 })
 
+// 3. LOGOUT
 const logout = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     { $unset: { refreshToken: 1 } },
     { new: true }
   );
-
-  const options = {
-    httpOnly: true,
-    secure: true,     // 🔥 localhost fix
-  };
 
   return res
     .status(200)
@@ -103,9 +106,20 @@ const logout = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "User logged out successfully"));
 });
 
+// 4. GET CURRENT USER
+const getCurrentUser = asyncHandler(async(req, res) => {
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200, 
+        req.user, 
+        "User fetched successfully"
+    ));
+});
+
 export {
     register,
-    generateAccessAndRefreshToken,
     login, 
-    logout
+    logout, 
+    getCurrentUser
 }

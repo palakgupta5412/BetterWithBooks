@@ -8,7 +8,6 @@ import { ImInfo } from "react-icons/im";
 import { FaQuoteLeft } from "react-icons/fa";
 import { IoBookSharp } from "react-icons/io5";
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import { useGSAP } from '@gsap/react';
 import TextReveal from '../hooks/textReveal';
 import AboutCard from './AboutCard';
 
@@ -73,20 +72,15 @@ const About = () => {
         }
     ]
 
-
     const aboutRef = React.useRef(null);
     useScrollReveal(aboutRef);
-    const textRef = React.useRef(null);
 
-    useGSAP(()=>{
-        
-    })
     return (
-      <section className="bg-gradient-to-b from-[#2a1208] via-[#3b1a0a] to-[#2a1208]  py-20">
-        <div className="w-full text-2xl px-10">
+      <section className="bg-gradient-to-b from-[#2a1208] via-[#3b1a0a] to-[#2a1208] py-10 md:py-20">
+        <div className="w-full text-2xl px-4 md:px-10">
           <h2 className="w-full text-center">
             <TextReveal 
-              className="text-center font-bold font-playfair tracking-wider mb-16 text-4xl text-[#e8b424]" 
+              className="text-center font-bold font-playfair tracking-wider mb-10 md:mb-16 text-3xl md:text-4xl text-[#e8b424]" 
               text="What We Stand For?" 
             />
           </h2>
@@ -94,7 +88,8 @@ const About = () => {
 
         <div 
           ref={aboutRef} 
-          className="max-w-7xl mx-auto px-10 flex flex-wrap justify-center gap-8 "
+          // CHANGE: px-4 allows the w-full cards to fit nicely on mobile without touching edges
+          className="max-w-7xl mx-auto px-4 md:px-10 flex flex-wrap justify-center gap-4 md:gap-8"
         >
           {data.map((item, idx) => (
             <AboutCard 
