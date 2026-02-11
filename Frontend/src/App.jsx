@@ -11,6 +11,7 @@ import Quotes from "./pages/Quotes.jsx";
 import CreateQuotes from "./components/CreateQuotes.jsx";
 import Library from "./pages/Library.jsx";
 import Explore from "./pages/Explore.jsx";
+import Profile from "./pages/Profile.jsx";
 function App() {
   return (
     <>
@@ -30,6 +31,7 @@ function App() {
         <Route path="/library" element={<Library />} />
         {/* <Route path='/myquotes' element={< />} />  */}
         <Route path="/info" element={<Info />} />
+        <Route path='/profile' element={<Profile />} />
       </Routes>
     </>
   );

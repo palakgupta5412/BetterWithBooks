@@ -33,3 +33,12 @@ export const getMyShelf = async () => {
         throw error.response?.data || error.message;
     }
 };
+
+export const updateBookProgress = async (googleBookId, pagesRead) => {
+    try {
+        const response = await api.patch('/books/progress', { googleBookId, pagesRead });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};

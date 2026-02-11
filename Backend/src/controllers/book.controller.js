@@ -144,4 +144,35 @@ const getUserShelf = asyncHandler(async(req, res) => {
     );
 });
 
-export { searchBooks, addToShelf, getUserShelf };
+const updateProgress = asyncHandler(async (req, res) => {
+    const { googleBookId, pagesRead } = req.body;
+    const userId = req.user._id;
+
+    // 1. Find User
+    const user = await User.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+
+    // 2. Find the specific book in their list
+    const bookIndex = user.books.findIndex(b => b.googleBookId === googleBookId);
+
+    if (bookIndex === -1) {
+        throw new ApiError(404, "Book not found in your library");
+    }
+
+    // 3. Update the pages
+    user.books[bookIndex].pagesRead = pagesRead;
+    
+    // Auto-update status if finished
+    if (pagesRead >= user.books[bookIndex].totalPages && user.books[bookIndex].totalPages > 0) {
+        user.books[bookIndex].status = "finished";
+    }
+
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(
+        new ApiResponse(200, user.books[bookIndex], "Progress updated successfully")
+    );
+});
+
+
+export { searchBooks, addToShelf, getUserShelf , updateProgress};
