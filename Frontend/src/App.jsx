@@ -12,6 +12,8 @@ import CreateQuotes from "./components/CreateQuotes.jsx";
 import Library from "./pages/Library.jsx";
 import Explore from "./pages/Explore.jsx";
 import Profile from "./pages/Profile.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
 function App() {
   return (
     <>
@@ -22,16 +24,18 @@ function App() {
         <Route path="/home" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
-        <Route path="/mytbr" element={<Cards />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path='/mytbr' element={<Cards />} />
-        {/* <Route path='/library' element={<Tbr />} /> */}
-        <Route path='/quotes' element={<Quotes />} />
-        <Route path='/createquote' element={<CreateQuotes />} /> 
-        <Route path="/library" element={<Library />} />
-        {/* <Route path='/myquotes' element={< />} />  */}
-        <Route path="/info" element={<Info />} />
-        <Route path='/profile' element={<Profile />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/mytbr" element={<Cards />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path='/mytbr' element={<Cards />} />
+          {/* <Route path='/library' element={<Tbr />} /> */}
+          <Route path='/quotes' element={<Quotes />} />
+          <Route path='/createquote' element={<CreateQuotes />} /> 
+          <Route path="/library" element={<Library />} />
+          {/* <Route path='/myquotes' element={< />} />  */}
+          <Route path="/info" element={<Info />} />
+          <Route path='/profile' element={<Profile />} />
+        </Route>
       </Routes>
     </>
   );

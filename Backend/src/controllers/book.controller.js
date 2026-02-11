@@ -144,29 +144,46 @@ const getUserShelf = asyncHandler(async(req, res) => {
     );
 });
 
+// --- 4. UPDATE READING PROGRESS (FIXED) ---
 const updateProgress = asyncHandler(async (req, res) => {
     const { googleBookId, pagesRead } = req.body;
     const userId = req.user._id;
 
-    // 1. Find User
+    // 1. Validation
+    if (!googleBookId) {
+        throw new ApiError(400, "Book ID is required");
+    }
+    // Ensure pagesRead is a number (Frontend might send string "50")
+    const newPagesRead = Number(pagesRead);
+    if (isNaN(newPagesRead)) {
+        throw new ApiError(400, "Pages read must be a number");
+    }
+
+    // 2. Find User
     const user = await User.findById(userId);
     if (!user) throw new ApiError(404, "User not found");
 
-    // 2. Find the specific book in their list
-    const bookIndex = user.books.findIndex(b => b.googleBookId === googleBookId);
+    // 3. Find the specific book
+    // We convert both to strings to ensure they match even if types differ
+    const bookIndex = user.books.findIndex(b => String(b.googleBookId) === String(googleBookId));
 
     if (bookIndex === -1) {
         throw new ApiError(404, "Book not found in your library");
     }
 
-    // 3. Update the pages
-    user.books[bookIndex].pagesRead = pagesRead;
+    // 4. Update the data
+    user.books[bookIndex].pagesRead = newPagesRead;
     
-    // Auto-update status if finished
-    if (pagesRead >= user.books[bookIndex].totalPages && user.books[bookIndex].totalPages > 0) {
+    // Auto-complete logic
+    if (user.books[bookIndex].totalPages > 0 && newPagesRead >= user.books[bookIndex].totalPages) {
         user.books[bookIndex].status = "finished";
+        user.books[bookIndex].pagesRead = user.books[bookIndex].totalPages; // Cap it
+        
+        // Remove from reading, add to finished (if your app logic requires shelf moving)
+        // Since you use a 'status' field, this is usually enough.
     }
 
+    // 5. Save (We disable validation to prevent unrelated schema errors)
     await user.save({ validateBeforeSave: false });
 
     return res.status(200).json(

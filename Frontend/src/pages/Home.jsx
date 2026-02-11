@@ -60,7 +60,7 @@ const Home = () => {
                     {user ? 
                     <div className='flex items-center gap-2 p-2'>
                         <p className='text-[#D8CFC4] text-right text-xs p-2 flex items-center font-bold '>Hello, {user.name}</p>
-                        <img onClick={()=>navigate("/proflie")} src={user.pfp || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className='w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border border-[#ffba66]' alt="" />
+                        <img onClick={()=>navigate("/profile")} src={user.pfp || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className='w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border border-[#ffba66]' alt="" />
                     </div> : <Button onClick={()=>navigate('/login')} text={"Login"} className={"text-xs text-center"}/> }
                     
                     {!user && <Button onClick={()=>navigate('/login')} text={"Register"} className={"text-xs text-center ml-2"}/>}
