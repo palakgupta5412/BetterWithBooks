@@ -39,36 +39,52 @@ const Login = () => {
         setError("");
 
         try {
+            let response;
+            
+            // 1. Perform the API Request
             if (mode === "login") {
-                const response = await loginUser({ 
+                response = await loginUser({ 
                     email: formData.email, 
                     password: formData.password 
                 });
-                login(response.data.data); // Update Context
-                navigate("/"); 
             } else {
-                const response = await registerUser({
+                response = await registerUser({
                     name: formData.name,
                     email: formData.email,
                     password: formData.password
                 });
-                
-                // Auto-login after register
-                const loginRes = await loginUser({ 
-                    email: formData.email, 
-                    password: formData.password 
-                });
-                login(loginRes.data.data);
-                navigate("/");
             }
+
+            // 2. DEBUGGING: Look at this in your browser console (F12)
+            console.log("FULL API RESPONSE:", response);
+
+            // 3. ROBUST DATA EXTRACTION
+            // Sometimes axios returns response.data.data, sometimes just response.data
+            // We check both possibilities to be safe.
+            const backendResponse = response?.data; // The standard axios wrapper
+            
+            // Try to find the user object in the most common paths
+            const userRes = backendResponse?.data?.user || backendResponse?.user || backendResponse;
+
+            console.log("EXTRACTED USER:", userRes);
+
+            // 4. Update Global State
+            if (userRes && (userRes._id || userRes.email)) {
+                login(userRes); // Update the Context
+                navigate("/");  // Go to Home
+            } else {
+                console.error("User data not found in response.");
+                setError("Login successful, but received invalid user data.");
+            }
+
         } catch (err) {
-            console.error(err);
-            setError(err.message || "Connection failed.");
+            console.error("Auth Error:", err);
+            setError(err.response?.data?.message || err.message || "Connection failed.");
         } finally {
             setLoading(false);
         }
     };
-
+    
     return (
         // CONTAINER: Mobile (p-4, flex-col) vs Desktop (p-20, flex-row)
         // This keeps your original desktop spacing exact.
