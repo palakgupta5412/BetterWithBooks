@@ -16,7 +16,7 @@ const Sidebar = () => {
   const userImage = user?.pfp || user?.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
   return (
-    <div className="w-[280px] sticky h-screen top-0 px-4 bg-[#2a1208] text-[#D8CFC4] border-r border-white/10 flex flex-col pb-6 items-center shadow-2xl">
+    <div className="font-sans w-[280px] sticky h-screen top-0 px-4 bg-[#2a1208] text-[#D8CFC4] border-r border-white/10 flex flex-col pb-6 items-center shadow-2xl">
         
         {/* Logo */}
         <img src="/logoF.png" alt="Logo" className="w-44 mt-4 mb-4 object-contain" />
@@ -26,11 +26,11 @@ const Sidebar = () => {
           <Link to="/" className="px-4 py-2 rounded-lg hover:bg-white/5 hover:text-[#ffba66] transition-colors flex items-center gap-3">
              Home
           </Link>
-          <Link to="/library" className="px-4 py-2 rounded-lg hover:bg-white/5 hover:text-[#ffba66] transition-colors">
-             Library
+          <Link to="/mytbr" className="px-4 py-2 rounded-lg hover:bg-white/5 hover:text-[#ffba66] transition-colors">
+             My TBR
           </Link>
           <Link
-            to="/tbr"
+            to="/library"
             className="px-4 py-2 rounded-lg bg-[#ffba66]/20 text-[#ffba66] font-semibold"
           >
              My Shelves

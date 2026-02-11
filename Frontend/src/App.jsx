@@ -9,7 +9,8 @@ import Cursor from "./components/Cursor";
 import Cards from "./components/Cards.jsx";
 import Quotes from "./pages/Quotes.jsx";
 import CreateQuotes from "./components/CreateQuotes.jsx";
-
+import Library from "./pages/Library.jsx";
+import Explore from "./pages/Explore.jsx";
 function App() {
   return (
     <>
@@ -21,12 +22,14 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/mytbr" element={<Cards />} />
-        <Route path="/explore" element={<Info />} />
+        <Route path="/explore" element={<Explore />} />
         <Route path='/mytbr' element={<Cards />} />
-        <Route path='/library' element={<Tbr />} />
+        {/* <Route path='/library' element={<Tbr />} /> */}
         <Route path='/quotes' element={<Quotes />} />
         <Route path='/createquote' element={<CreateQuotes />} /> 
+        <Route path="/library" element={<Library />} />
         {/* <Route path='/myquotes' element={< />} />  */}
+        <Route path="/info" element={<Info />} />
       </Routes>
     </>
   );

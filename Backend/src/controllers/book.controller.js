@@ -7,47 +7,46 @@ import { User } from "../models/user.model.js";
 import { Author } from "../models/author.model.js";
 
 const searchBooks = asyncHandler(async(req, res) => {
-    
-    // 1. Get the search query from the frontend (e.g., ?query=Harry+Potter)
-    const { query } = req.query;
+    // 1. Get Query + Page Number from Frontend
+    const { query, page = 1 } = req.query;
 
     if (!query) {
         throw new ApiError(400, "Search query is required");
     }
 
-    // 2. Call Google Books API
-    // We limit results to 10 to save bandwidth
-    const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=10`;
+    // 2. Calculate Pagination Logic
+    // Google API uses 'startIndex'. 
+    // If page 1, start at 0. If page 2, start at 40.
+    const maxResults = 40; // Max allowed by Google
+    const startIndex = (page - 1) * maxResults;
+
+    const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=${maxResults}&startIndex=${startIndex}`;
 
     try {
         const response = await axios.get(googleBooksUrl);
         const data = response.data;
 
-        // 3. If no items found
         if (!data.items || data.items.length === 0) {
-            return res.status(404).json(new ApiResponse(404, [], "No books found"));
+            // Return empty array instead of 404 so frontend can just show "No more results"
+            return res.status(200).json(new ApiResponse(200, [], "No books found"));
         }
 
-        // 4. CLEAN THE DATA (Format it for our frontend)
-        // Google returns messy data. We only want: Title, Author, Image, Description, etc.
         const formattedBooks = data.items.map((book) => {
             const info = book.volumeInfo;
             return {
-                googleId: book.id, // We need this to save the book later!
+                googleId: book.id,
                 title: info.title,
                 authors: info.authors || ["Unknown Author"],
                 description: info.description || "No description available",
-                coverImage: info.imageLinks?.thumbnail || "https://via.placeholder.com/150",
+                // Force HTTPS for images
+                coverImage: info.imageLinks?.thumbnail?.replace('http:', 'https:') || "https://placehold.co/128x196?text=No+Cover",
                 pageCount: info.pageCount || 0,
                 categories: info.categories || [],
                 averageRating: info.averageRating || 0
             };
         });
 
-        // 5. Send clean data back to frontend
-        return res
-        .status(200)
-        .json(new ApiResponse(200, formattedBooks, "Books fetched successfully"));
+        return res.status(200).json(new ApiResponse(200, formattedBooks, "Books fetched successfully"));
 
     } catch (error) {
         console.error("Google API Error:", error.message);
