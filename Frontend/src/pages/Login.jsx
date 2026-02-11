@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import Button from '../components/Button';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
 import { loginUser, registerUser } from '../api/auth.service'; 
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Login = () => {
+
+    const {addToast} = useToast();
+
     const navigate = useNavigate();
     
     // --- FIX 1: Destructure 'login' correctly ---
@@ -72,7 +76,16 @@ const Login = () => {
             if (userRes && (userRes._id || userRes.email)) {
                 login(userRes); // Update the Context
                 navigate("/");  // Go to Home
+                addToast({
+                    type: "success",
+                    message: `Successfully ${mode === "login" ? "logged in" : "registered"}.`
+                });
+                
             } else {
+                addToast({
+                    type: "error",
+                    message: `Failed to ${mode === "login" ? "log in" : "register"}.`
+                })
                 console.error("User data not found in response.");
                 setError("Login successful, but received invalid user data.");
             }
@@ -84,7 +97,7 @@ const Login = () => {
             setLoading(false);
         }
     };
-    
+
     return (
         // CONTAINER: Mobile (p-4, flex-col) vs Desktop (p-20, flex-row)
         // This keeps your original desktop spacing exact.

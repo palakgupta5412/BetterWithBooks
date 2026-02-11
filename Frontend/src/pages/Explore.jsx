@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { FaSearch, FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { searchBooks, addToShelf } from '../api/books.service';
+import { searchBooks, addToShelf } from '../api/books.service'; // Make sure this path is correct!
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext'; // <--- Import the Toaster Hook
 
 const Explore = () => {
   const [query, setQuery] = useState("");
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1); // Track current page
+  const [page, setPage] = useState(1);
+  
   const navigate = useNavigate();
+  const { addToast } = useToast(); // <--- Initialize the Toaster
 
-  // Helper function to fetch data (used by Search AND Pagination)
+  // --- Helper to fetch books (Used by Search & Pagination) ---
   const fetchBooks = async (searchQuery, pageNum) => {
       if (!searchQuery.trim()) return;
       
       setLoading(true);
       setError("");
-      // Don't clear books immediately on pagination for smoother UX? 
-      // Actually, clearing feels snappier for search.
-      if (pageNum === 1) setBooks([]); 
+      if (pageNum === 1) setBooks([]); // Clear grid on new search
 
       try {
           const response = await searchBooks(searchQuery, pageNum);
@@ -29,13 +30,13 @@ const Explore = () => {
 
           if (rawBooks.length === 0) {
               if (pageNum === 1) setError("No books found.");
-              // If page > 1, it just means end of list, we can handle that logic if needed
           } else {
               const cleanBooks = rawBooks.map(book => ({
                   googleId: book.googleId,
                   bookName: book.title,
                   author: Array.isArray(book.authors) ? book.authors.join(", ") : book.authors,
-                  coverImage: book.coverImage,
+                  // FIX: Force HTTPS
+                  coverImage: book.coverImage?.replace("http://", "https://") || "https://placehold.co/128x196?text=No+Cover",
                   description: book.description,
                   pageCount: book.pageCount,
                   categories: book.categories,
@@ -46,6 +47,7 @@ const Explore = () => {
       } catch (err) {
           console.error("Search Error:", err);
           setError("Failed to fetch books.");
+          addToast("Failed to fetch books. Try again.", "error"); // Toast error
       } finally {
           setLoading(false);
       }
@@ -53,7 +55,7 @@ const Explore = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setPage(1); // Reset to page 1 on new search
+    setPage(1);
     fetchBooks(query, 1);
   };
 
@@ -61,7 +63,6 @@ const Explore = () => {
       const nextPage = page + 1;
       setPage(nextPage);
       fetchBooks(query, nextPage);
-      // Scroll to top of grid
       document.getElementById('book-grid')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -87,10 +88,14 @@ const Explore = () => {
           };
 
           await addToShelf(payload);
-          alert(`Added to ${uiStatus}!`);
+          
+          // SUCCESS TOAST
+          addToast(`Added "${book.bookName}" to ${uiStatus}!`, "success");
+
       } catch (err) {
           console.error(err);
-          alert("Could not add book. (Are you logged in?)");
+          // ERROR TOAST
+          addToast("Could not add book. Are you logged in?", "error");
       }
   };
 
@@ -125,17 +130,19 @@ const Explore = () => {
             </form>
         </div>
 
-        {/* ERROR */}
+        {/* ERROR MESSAGE */}
         {error && <div className="text-red-400 mb-6 bg-red-900/20 p-4 rounded-lg border border-red-500/20">{error}</div>}
 
         {/* BOOK GRID */}
         <div id="book-grid" className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-y-10 gap-x-6">
             {books.map((book) => (
                 <div key={book.googleId} className="flex flex-col items-center group relative">
+                    {/* Title */}
                     <p className="opacity-0 group-hover:opacity-100 text-[11px] mb-1 text-center font-medium line-clamp-1 w-full text-[#ffba66] transition-opacity">
                         {book.bookName}
                     </p>
                     
+                    {/* Cover Image Container */}
                     <div className="w-[120px] h-[170px] rounded-md overflow-hidden shadow-lg shadow-black/50 group-hover:scale-105 transition-transform duration-300 border border-white/5 relative">
                          <img
                             onClick={() => navigate('/info', { state: { book } })} 
@@ -145,6 +152,7 @@ const Explore = () => {
                             onError={(e) => { e.target.src = "https://placehold.co/120x170?text=No+Cover" }}
                         />
                         
+                        {/* Hover Overlay Buttons */}
                         <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2 p-2">
                             <button 
                                 onClick={(e) => { e.stopPropagation(); handleAdd(book, "To be Read"); }}
@@ -167,6 +175,7 @@ const Explore = () => {
                         </div>
                     </div>
 
+                    {/* Author Label */}
                     <p className="text-[10px] mt-2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity line-clamp-1">
                         {book.author}
                     </p>
