@@ -29,3 +29,12 @@ export const logoutUser = async () => {
         throw error.response?.data || error.message;
     }
 };
+
+export const changePassword = async (data) => {
+    try {
+        const response = await api.post('/users/change-password', data);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};

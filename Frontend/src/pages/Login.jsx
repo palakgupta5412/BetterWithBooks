@@ -74,12 +74,12 @@ const Login = () => {
 
             // 4. Update Global State
             if (userRes && (userRes._id || userRes.email)) {
-                login(userRes); // Update the Context
-                navigate("/");  // Go to Home
+                login(userRes);
                 addToast({
                     type: "success",
                     message: `Successfully ${mode === "login" ? "logged in" : "registered"}.`
                 });
+                navigate("/");
                 
             } else {
                 addToast({

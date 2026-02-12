@@ -5,6 +5,7 @@ import { getMyShelf, updateBookProgress } from '../api/books.service';
 import { useToast } from '../context/ToastContext';
 import { FaBookOpen, FaCheck, FaRegEdit, FaSignOutAlt, FaCog } from "react-icons/fa";
 import Button from '../components/Button';
+import ChangePasswordModal from '../components/ChangePasswordModal.jsx';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -14,7 +15,7 @@ const Profile = () => {
   const [tbr, setTbr] = useState([]);
   const [finished, setFinished] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [isSettingOpen  , setIsSettingOpen] = useState(false);
   // Fetch Data
   useEffect(() => {
     const fetchData = async () => {
@@ -63,14 +64,14 @@ const Profile = () => {
          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0f0502] to-transparent"></div>
       </div>
 
-      <div className="relative z-10 flex-1 p-8 md:p-16 overflow-y-auto h-screen scrollbar-hide">
+      <div className="font-sans tracking-wider relative z-10 flex-1 p-8 md:p-16 overflow-y-auto h-screen scrollbar-hide">
         
         {/* 1. HEADER */}
         <div className="flex justify-between items-end mb-16 border-b border-white/5 pb-8">
             <div>
-                <h3 className="font-playfair italic text-[#ffba66] text-lg mb-2">The Protagonist</h3>
-                <h1 className="font-gravitas text-5xl md:text-6xl text-white">
-                    Hi, {user?.name?.split(' ')[0] || "Reader"}.
+                <h3 className="font-sans italic text-[#ffba66] text-lg mb-2">Hi Reader</h3>
+                <h1 className="font-titan text-5xl md:text-6xl text-white">
+                     {user?.name}.
                 </h1>
                 <p className="mt-4 opacity-60 max-w-md leading-relaxed">
                     "A reader lives a thousand lives before he dies. The man who never reads lives only one."
@@ -79,7 +80,7 @@ const Profile = () => {
             
             {/* Settings & Logout */}
             <div className="flex gap-4">
-                <button className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-full hover:bg-white/5 transition text-sm">
+                <button onClick={() => {setIsSettingOpen(true)}} className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-full hover:bg-white/5 transition text-sm">
                     <FaCog /> Settings
                 </button>
                 <button 
@@ -118,6 +119,10 @@ const Profile = () => {
             )}
         </div>
       </div>
+      <ChangePasswordModal 
+        isOpen={isSettingOpen} 
+        onClose={() => setIsSettingOpen(false)} 
+    />
     </div>
   );
 };

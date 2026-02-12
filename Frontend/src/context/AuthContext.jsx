@@ -1,54 +1,68 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api/axios'; // Your axios helper
+import api from '../api/axios';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    // Initialize loading to TRUE so we don't flash the login screen
     const [loading, setLoading] = useState(true);
 
-    // This runs ONCE when the app starts
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                // Ask backend: "Who am I?"
+                // 1. Check LocalStorage FIRST (Fastest)
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    setUser(JSON.parse(storedUser));
+                }
+
+                // 2. Verify with Backend (Secure)
                 const response = await api.get('/users/current-user');
                 if (response.data.success) {
-                    setUser(response.data.data); // Save the user info (name, email, avatar)
+                    const userData = response.data.data;
+                    setUser(userData);
+                    localStorage.setItem('user', JSON.stringify(userData));
                 }
             } catch (error) {
-                // If 401 Unauthorized, it means no cookie or invalid cookie.
-                // We just stay as "guest" (user = null)
+                // If backend check fails, clear everything
                 setUser(null);
+                localStorage.removeItem('user');
             } finally {
-                setLoading(false); // Finished checking
+                // CRITICAL: Ensure loading is FALSE after checks are done
+                setLoading(false);
             }
         };
 
         checkAuth();
     }, []);
 
-    // Helper to manually update user (e.g., after login/register)
     const login = (userData) => {
+        // 1. Update State
         setUser(userData);
+        // 2. Update Storage
+        localStorage.setItem('user', JSON.stringify(userData));
+        // 3. Update Loading (Just in case)
+        setLoading(false); 
     };
 
     const logout = async () => {
+        setUser(null);
+        localStorage.removeItem('user');
+        setLoading(false);
         try {
             await api.post('/users/logout');
-            setUser(null);
-        } catch (error) {
-            console.error("Logout failed", error);
+        } catch (e) {
+            console.error("Logout error", e);
         }
     };
 
     return (
         <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {/* We don't render the app until we know if you are logged in or not */}
-            {!loading && children} 
+            {/* RENDER CHILDREN ALWAYS. Do not block here. */}
+            {children} 
         </AuthContext.Provider>
     );
 };
 
-// Custom Hook to use this easily in any component
 export const useAuth = () => useContext(AuthContext);

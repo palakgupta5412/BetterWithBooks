@@ -117,9 +117,33 @@ const getCurrentUser = asyncHandler(async(req, res) => {
     ));
 });
 
+const changeCurrentPassword = asyncHandler(async(req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    // 1. Validate
+    if (!oldPassword || !newPassword) {
+        throw new ApiError(400, "Old and New passwords are required");
+    }
+
+    // 2. Find User (req.user is set by verifyJWT)
+    const user = await User.findById(req.user?._id);
+    
+    // 3. Check Old Password
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Invalid old password");
+    }
+
+    // 4. Save New Password
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
+});
 export {
     register,
     login, 
     logout, 
-    getCurrentUser
+    getCurrentUser,
+    changeCurrentPassword
 }

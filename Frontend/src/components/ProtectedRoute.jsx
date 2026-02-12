@@ -2,21 +2,25 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
     const { user, loading } = useAuth();
 
-    // 1. If we are still checking if the user is logged in, show nothing (or a spinner)
-    // This prevents "flickering" where it kicks you out before the check is done.
-    if (loading) return <div className="h-screen bg-[#1a0f0e]"></div>;
+    // 1. SHOW SPINNER (If we are still checking who the user is)
+    if (loading) {
+        return (
+            <div className="h-screen w-full flex items-center justify-center bg-[#1a0f0e]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ffba66]"></div>
+            </div>
+        );
+    }
 
-    // 2. If check is done and NO user found -> Kick to Login
+    // 2. REDIRECT (If check is done and user is still null)
     if (!user) {
         return <Navigate to="/login" replace />;
     }
 
-    // 3. If user exists -> Let them through!
-    // (Render children if provided, otherwise render the child Route via Outlet)
-    return children ? children : <Outlet />;
+    // 3. RENDER PAGE (User is logged in)
+    return <Outlet />;
 };
 
 export default ProtectedRoute;
