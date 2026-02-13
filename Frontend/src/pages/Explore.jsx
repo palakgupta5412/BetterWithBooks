@@ -82,19 +82,22 @@ const Explore = () => {
           if (uiStatus === "Reading") shelfCode = "reading";
           if (uiStatus === "Finished") shelfCode = "finished";
 
+          // --- FIX: SEND ALL DATA ---
           const payload = {
             googleBookId: book.googleId,
-            shelf: shelfCode
+            shelf: shelfCode,
+            bookName: book.bookName,      // <--- Send Title
+            author: book.author,          // <--- Send Author
+            coverImage: book.coverImage,  // <--- Send Image URL
+            totalPages: book.pageCount    // <--- Send Page Count
           };
 
           await addToShelf(payload);
           
-          // SUCCESS TOAST
           addToast(`Added "${book.bookName}" to ${uiStatus}!`, "success");
 
       } catch (err) {
           console.error(err);
-          // ERROR TOAST
           addToast("Could not add book. Are you logged in?", "error");
       }
   };

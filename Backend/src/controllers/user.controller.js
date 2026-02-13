@@ -74,7 +74,7 @@ const login = asyncHandler( async (req, res) => {
         throw new ApiError(401 , "User not found");
     }
 
-    const isPasswordValid = await user.isPasswordValid(password);
+    const isPasswordValid = await user.isPasswordCorrect(password);
     if(!isPasswordValid){
         throw new ApiError(401 , "Invalid password");
     }
@@ -118,28 +118,52 @@ const getCurrentUser = asyncHandler(async(req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async(req, res) => {
+    console.log("--- CHANGE PASSWORD DEBUG START ---");
+    
+    // 1. Check if we received data
+    console.log("Req Body:", req.body);
     const { oldPassword, newPassword } = req.body;
 
-    // 1. Validate
     if (!oldPassword || !newPassword) {
+        console.log("Error: Missing passwords");
         throw new ApiError(400, "Old and New passwords are required");
     }
 
-    // 2. Find User (req.user is set by verifyJWT)
-    const user = await User.findById(req.user?._id);
-    
-    // 3. Check Old Password
+    // 2. Check if we know who the user is
+    console.log("Req User:", req.user);
+    if (!req.user?._id) {
+        console.log("Error: User ID missing from request (verifyJWT failed?)");
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    // 3. Find User in DB
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        console.log("Error: User not found in DB");
+        throw new ApiError(404, "User not found");
+    }
+    console.log("User found:", user.email);
+
+    // 4. Check Password
+    console.log("Checking old password...");
+    // STOP HERE: If it crashes after this line, the issue is in user.model.js
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    
+    console.log("Password Correct?", isPasswordCorrect);
+    
     if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid old password");
     }
 
-    // 4. Save New Password
+    // 5. Save New Password
+    console.log("Saving new password...");
     user.password = newPassword;
     await user.save({ validateBeforeSave: false });
+    console.log("Success!");
 
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
 });
+
 export {
     register,
     login, 

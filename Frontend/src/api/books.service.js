@@ -44,3 +44,15 @@ export const updateBookProgress = async (googleBookId, pagesRead) => {
         throw error.response?.data || error.message;
     }
 };
+
+export const removeBook = async (googleBookId) => {
+    try {
+        // Note: Axios DELETE sends body inside a 'data' property
+        const response = await api.delete('/books/remove', { 
+            data: { googleBookId } 
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};

@@ -27,12 +27,31 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     },
-    tbr: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
-
-    reading: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
-
-    finished: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
-
+    tbr: [{ 
+       googleBookId: String,
+       bookName: String,
+       author: String,
+       coverImage: String,
+       totalPages: Number,
+       addedAt: Date
+   }],
+   reading: [{ 
+       googleBookId: String, 
+       bookName: String,
+       author: String,
+       coverImage: String,
+       totalPages: Number,
+       pagesRead: { type: Number, default: 0 }, // <--- Important for progress!
+       addedAt: Date
+   }],
+   finished: [{ 
+       googleBookId: String,
+       bookName: String,
+       author: String,
+       coverImage: String,
+       totalPages: Number,
+       addedAt: Date
+   }],
 
     refreshToken: {
         type: String,
@@ -49,11 +68,11 @@ userSchema.pre("save", async function () { // ❌ Remove 'next' parameter
 
     // 2. Hash the password
     this.password = await bcrypt.hash(this.password, 10);
-    
+    // next();
     // ❌ Do NOT call next(). The function ends here automatically.
 });
 
-userSchema.methods.isPasswordValid = async function(password) {
+userSchema.methods.isPasswordCorrect = async function(password) {
     return await bcrypt.compare(password, this.password);
 }
 

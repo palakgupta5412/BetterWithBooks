@@ -1,264 +1,269 @@
-import React, { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { MdOutlineArrowRight } from "react-icons/md";
-import { FaArrowLeft } from "react-icons/fa";
+import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { MdOutlineArrowRight, MdOutlineArrowDropDown } from "react-icons/md";
+import { FaArrowLeft, FaEllipsisV, FaCheck, FaBookOpen, FaListUl, FaTrash } from "react-icons/fa";
 import Sidebar from "../components/Sidebar";
+import { getMyShelf, addToShelf, removeBook } from "../api/books.service";
+import { useToast } from "../context/ToastContext";
 
-const booksData = [
-  {
-    id: 1,
-    bookName: "It Ends With Us",
-    author: "Colleen Hoover", 
-    genre: ["Romance", "Contemporary", "Drama"],
-    status: "Finished",
-    pagesRead: 376,
-    totalPages: 376,
-    progressPercent: 100,
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/81s0B6NYXML.jpg",
-  },
-  {
-    id: 2,
-    bookName: "It Starts With Us",
-    author: "Colleen Hoover",
-    genre: ["Romance", "Contemporary"],
-    status: "To be Read",
-    pagesRead: 0,
-    totalPages: 336,
-    progressPercent: 0,
-    coverImage: "https://m.media-amazon.com/images/I/81G91BUSHsL._UF1000,1000_QL80_.jpg",
-  },
-  {
-    id: 3,
-    bookName: "The Seven Husbands of Evelyn Hugo",
-    author: "Taylor Jenkins Reid",
-    genre: ["Fiction", "Romance", "Historical"],
-    status: "Reading",
-    pagesRead: 120,
-    totalPages: 400,
-    progressPercent: 30,
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/71KcUgYanhL.jpg",
-  },
-  {
-    id: 4,
-    bookName: "Atomic Habits",
-    author: "James Clear",
-    genre: ["Self-help", "Productivity", "Non-fiction"],
-    status: "Finished",
-    pagesRead: 320,
-    totalPages: 320,
-    progressPercent: 100,
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg",
-  },
-  {
-    id: 5,
-    bookName: "Harry Potter and the Philosopher's Stone",
-    author: "J.K. Rowling",
-    genre: ["Fantasy", "Adventure", "Young Adult"],
-    status: "Reading",
-    pagesRead: 90,
-    totalPages: 223,
-    progressPercent: 40,
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/81YOuOGFCJL.jpg",
-  },
-  {
-    id: 6,
-    bookName: "The Alchemist",
-    author: "Paulo Coelho",
-    genre: ["Fiction", "Philosophical", "Adventure"],
-    status: "To be Read",
-    pagesRead: 0,
-    totalPages: 208,
-    progressPercent: 0,
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/71aFt4+OTOL.jpg",
-  },
-  {
-    id: 7,
-    bookName: "A Good Girl's Guide to Murder",
-    author: "Holly Jackson",
-    genre: ["Mystery", "Thriller", "Young Adult"],
-    status: "To be Read",
-    pagesRead: 0,
-    totalPages: 433,
-    progressPercent: 0,
-    coverImage: "https://upload.wikimedia.org/wikipedia/en/e/e2/A_Good_Girl%27s_Guide_to_Murder.jpg",
-  },
-  {
-    id: 8,
-    bookName: "The Silent Patient",
-    author: "Alex Michaelides",
-    genre: ["Psychological Thriller", "Mystery"],
-    status: "to buy",
-    pagesRead: 0,
-    totalPages: 336,
-    progressPercent: 0,
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/81JJPDNlxSL.jpg",
-  },
-];
-
-const BookCard = ({ book }) => {
+// --- 1. THE CARD (Restored Design + Added Menu) ---
+const BookCard = ({ book, onMove, onDelete }) => {
   const navigate = useNavigate();
+  const [showMenu, setShowMenu] = useState(false);
+
+  // Calculate Progress for the badge
+  const progressPercent = Math.round((book.pagesRead / (book.totalPages || 1)) * 100) || 0;
+
   return (
-    <div className="min-w-[110px] flex flex-col items-center group cursor-pointer">
+    <div className="min-w-[110px] flex flex-col items-center group relative">
       
-      <p className="opacity-0 group-hover:opacity-100 text-[11px] mt-2 text-center font-medium line-clamp-1 w-[110px]">
+      {/* Title (Hover) */}
+      <p className="opacity-0 group-hover:opacity-100 text-[11px] mt-2 text-center font-medium line-clamp-1 w-[110px] text-[#ffba66] transition-opacity">
         {book.bookName}
       </p>
-      <p className="opacity-0 group-hover:opacity-70 text-[10px] mb-1 line-clamp-1">{book.author}</p>
-      {book.status === "Reading" && (
-        <div className="absolute text-xs opacity-0 group-hover:opacity-100 -top-8 left-1/2 w-2 h-2 rounded-full pr-20 ">{book.progressPercent}% read</div>
-      )}
-      <div className="w-[90px] h-[120px] rounded-md overflow-hidden shadow-md group-hover:scale-[1.03] transition">
-        <img
-          onClick={()=>navigate('/explore' , {state: {book}})}
-          src={book.coverImage ? book.coverImage : "/aboutImg/3.jpg"}
-          alt={book.bookName}
-          className="w-full group h-full object-cover"
-        />
-      </div>
-
       
+      {/* Author (Hover) */}
+      <p className="opacity-0 group-hover:opacity-70 text-[10px] mb-1 line-clamp-1 text-gray-400">{book.author}</p>
+      
+      {/* Progress Badge (Only if Reading) */}
+      {book.status === "Reading" && (
+        <div className="absolute text-[10px] font-bold text-[#ffba66] opacity-0 group-hover:opacity-100 -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 px-2 py-0.5 rounded-full z-20">
+            {progressPercent}% read
+        </div>
+      )}
+
+      {/* Cover Image Container */}
+      <div className="w-[130px] h-[190px] rounded-md overflow-hidden shadow-md group-hover:scale-[1.03] transition relative">
+        <img
+          onClick={() => navigate('/info', { state: { book } })}
+          src={book.coverImage || "https://placehold.co/128x196?text=No+Cover"}
+          alt={book.bookName}
+          className="w-full h-full object-cover cursor-pointer"
+        />
+
+        {/* --- NEW: Discreet Context Menu (3 Dots) --- */}
+        <button 
+             onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+             className="absolute top-1 right-1 text-white bg-black/50 rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-[#ffba66] hover:text-black transition-all z-30"
+        >
+            <FaEllipsisV size={12} />
+        </button>
+
+        {/* The Menu Dropdown */}
+        {showMenu && (
+            <div className="absolute top-6 -right-4 w-28 bg-[#1a0f0e] border border-[#ffba66]/30 rounded shadow-xl z-50 flex flex-col text-[6px]">
+                <button onClick={() => { onMove(book, 'reading'); setShowMenu(false); }} className="px-2 py-1.5 text-left hover:bg-[#ffba66] hover:text-black flex gap-2 items-center"><FaBookOpen/> Reading</button>
+                <button onClick={() => { onMove(book, 'tbr'); setShowMenu(false); }} className="px-2 py-1.5 text-left hover:bg-[#ffba66] hover:text-black flex gap-2 items-center"><FaListUl/> TBR</button>
+                <button onClick={() => { onMove(book, 'finished'); setShowMenu(false); }} className="px-2 py-1.5 text-left hover:bg-[#ffba66] hover:text-black flex gap-2 items-center"><FaCheck/> Finish</button>
+                <div className="h-[1px] bg-white/10"></div>
+                <button onClick={() => { onDelete(book); setShowMenu(false); }} className="px-2 py-1.5 text-left text-red-400 hover:bg-red-900/30 flex gap-2 items-center"><FaTrash/> Remove</button>
+            </div>
+        )}
+      </div>
     </div>
   );
 };
 
-const BookShelf = ({ title, books }) => {
+const BookShelf = ({ title, books, onMove, onDelete }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!books || books.length === 0) return null;
+
   return (
-    <div className="w-full">
-      {/* heading */}
-      <div className="w-full flex justify-between items-center mb-2">
-        <h2 className="font-playfair text-lg font-semibold">{title}</h2>
-        <button className="text-xs opacity-70 hover:opacity-100 flex items-center gap-1">
-          Full shelf <MdOutlineArrowRight />
+    <div className="w-full mb-10 transition-all duration-500">
+      {/* Heading */}
+      <div className="w-full flex justify-between items-center mb-3 px-2 border-b border-white/5 pb-2">
+        <h2 className="font-playfair text-xl font-semibold text-[#ffba66] flex items-center gap-2">
+            {title} 
+            <span className="text-white/20 text-xs font-sans mt-1">({books.length})</span>
+        </h2>
+        
+        {/* FIX 2: Functional Full Shelf Button */}
+        <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-xs opacity-60 hover:opacity-100 flex items-center gap-1 hover:text-[#ffba66] transition cursor-pointer"
+        >
+            {isExpanded ? "Collapse" : "Full shelf"} 
+            {isExpanded ? <MdOutlineArrowDropDown size={16}/> : <MdOutlineArrowRight size={16}/>}
         </button>
       </div>
 
-      {/* shelf board + books */}
-      <div className="relative w-full">
-        {/* Books row */}
-        <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide">
-          {books.length === 0 ? (
-            <p className="text-sm opacity-60 px-4 py-4">No books here yet ✨</p>
-          ) : (
-            books.map((b) => <BookCard key={b.id} book={b} />)
-          )}
+      {/* Shelf Content */}
+      <div className="relative w-full min-h-[190px]">
+        
+        {/* LOGIC: If Expanded -> Grid View. If Collapsed -> Scroll View */}
+        <div className={`
+            ${isExpanded 
+                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-6 px-2 pb-4" 
+                : "flex gap-6 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide items-start"}
+            transition-all duration-500
+        `}>
+            {books.map((b) => (
+                <BookCard 
+                    key={b.googleBookId || b._id} 
+                    book={b} 
+                    onMove={onMove}
+                    onDelete={onDelete}
+                />
+            ))}
         </div>
 
-        {/* shelf plank */}
-        <div className="absolute bottom-3 left-0 w-full h-[12px] bg-[#ffc983f3] rounded-md shadow-inner"></div>
+        {/* Wooden Plank (Only show if NOT expanded, for the scrolling look) */}
+        {!isExpanded && (
+            <div className="absolute bottom-3 left-0 w-full h-[12px] bg-[#ffc983f3] rounded-md shadow-[0px_4px_6px_rgba(0,0,0,0.5)] border-t border-[#ffdca8] -z-10"></div>
+        )}
       </div>
     </div>
   );
 };
 
-const Tbr = () => {
+// --- 3. MAIN LIBRARY PAGE ---
+const Library = () => {
   const [statusFilter, setStatusFilter] = useState("All Genres");
+  const [allBooks, setAllBooks] = useState([]); // Stores fetched books
+  const [loading, setLoading] = useState(true);
+  
   const navigate = useNavigate();
-  // status wise grouping
-  const grouped = useMemo(() => {
-    const reading = booksData.filter((b) => b.status === "Reading");
-    const tbr = booksData.filter((b) => b.status === "To be Read");
-    const finished = booksData.filter((b) => b.status === "Finished");
-    const buy = booksData.filter((b) => b.status === "to buy");
-    const romance = booksData.filter((b) => b.genre.includes("Romance"));
-    const thriller = booksData.filter((b) => b.genre.includes("Thriller"));
-    const historical = booksData.filter((b) => b.genre.includes("Historical"));
-    const fantasy = booksData.filter((b) => b.genre.includes("Fantasy"));
-    const scifi = booksData.filter((b) => b.genre.includes("Science Fiction"));
-    const nonfiction = booksData.filter((b) => b.genre.includes("Non-fiction"));
-    const selfhelp = booksData.filter((b) => b.genre.includes("Self-help"));
-    const mystery = booksData.filter((b) => b.genre.includes("Mystery"));
+  const { addToast } = useToast();
 
-    return { reading, tbr, finished, buy, romance, thriller, historical, fantasy, scifi, nonfiction, selfhelp, mystery };
+  // --- FETCH DATA FROM BACKEND ---
+  const fetchLibrary = async () => {
+    try {
+      const response = await getMyShelf();
+      const data = response.data; // { tbr: [], reading: [], finished: [] }
+      
+      // Flatten the data into a single array for easier filtering
+      // We add a 'status' property manually to match your UI logic
+      const combined = [
+          ...(data.reading || []).map(b => ({ ...b, status: "Reading" })),
+          ...(data.tbr || []).map(b => ({ ...b, status: "To be Read" })),
+          ...(data.finished || []).map(b => ({ ...b, status: "Finished" }))
+      ];
+      
+      setAllBooks(combined);
+    } catch (err) {
+      console.error(err);
+      addToast("Could not load library", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLibrary();
   }, []);
 
+  // --- HANDLERS ---
+  const handleMove = async (book, targetStatus) => {
+      try {
+          const payload = {
+            googleBookId: book.googleBookId || book.googleBooksId,
+            shelf: targetStatus, // 'tbr', 'reading', 'finished'
+            bookName: book.bookName,
+            author: book.author,
+            coverImage: book.coverImage,
+            totalPages: book.totalPages
+          };
+          await addToShelf(payload);
+          addToast("Moved book!", "success");
+          fetchLibrary(); // Refresh UI
+      } catch (err) {
+          addToast("Failed to move", "error");
+      }
+  };
+
+  const handleDelete = async (book) => {
+      if(!confirm("Remove from library?")) return;
+      try {
+          await removeBook(book.googleBookId || book.googleBooksId);
+          addToast("Removed book", "info");
+          fetchLibrary();
+      } catch(err) {
+          addToast("Failed to remove", "error");
+      }
+  };
+
+  // --- FILTERING LOGIC (Using Dynamic Data) ---
+  const grouped = useMemo(() => {
+    // 1. Basic Status Filter
+    const reading = allBooks.filter((b) => b.status === "Reading");
+    const tbr = allBooks.filter((b) => b.status === "To be Read");
+    const finished = allBooks.filter((b) => b.status === "Finished");
+
+    // 2. Safe Category Check Helper
+    // Returns books that have 'categories' AND match the search string
+    const filterByGenre = (genre) => allBooks.filter(b => 
+        b.categories && 
+        Array.isArray(b.categories) && 
+        b.categories.some(cat => cat.toLowerCase().includes(genre.toLowerCase()))
+    );
+    return { 
+        reading, tbr, finished, 
+        // We map these keys to match the <option> values in the dropdown
+        romance: filterByGenre("romance"), 
+        thriller: filterByGenre("thriller"),
+        historical: filterByGenre("history"), // Google often uses "History" or "Historical Fiction"
+        fantasy: filterByGenre("fantasy"),
+        scifi: filterByGenre("science"), // Matches "Science Fiction"
+        nonfiction: filterByGenre("nonfiction"), // Matches "Nonfiction"
+        selfhelp: filterByGenre("self-help"), 
+        mystery: filterByGenre("mystery")
+    };
+  }, [allBooks]);
+
   return (
-    <div className="font-sans text-white w-full min-h-screen flex bg-[url('/tbrBg.png')] bg-cover bg-no-repeat">
-      {/* Sidebar */}
+    <div className="font-sans text-[#D8CFC4] w-full min-h-screen flex bg-[#1a0f0e]">
+      {/* Background Image Overlay */}
+      <div className="fixed inset-0 z-0 bg-[url('/tbrBg.png')] bg-cover bg-no-repeat opacity-100"></div>
+      
       <Sidebar />
 
-      {/* Main */}
-      <div className="scroll-y-auto h-screen overflow-scroll overflow-x-hidden flex-1 p-6">
-        {/* Top controls */}
-        <div className="w-full flex justify-between items-center mb-6">
+      <div className="relative z-10 scroll-y-auto h-screen overflow-scroll overflow-x-hidden flex-1 p-6 scrollbar-hide">
+        
+        {/* Top Controls */}
+        <div className="w-full flex justify-between items-center mb-8">
           <div className="flex gap-4 items-center">
-            <FaArrowLeft className="text-3xl cursor-pointer" onClick={()=>navigate(-1)}/>
+            <button onClick={()=>navigate(-1)} className="p-2 bg-black/20 hover:bg-black/50 rounded-full transition">
+                 <FaArrowLeft className="text-xl" />
+            </button>
             <div>  
-              <h1 className="font-playfair text-3xl font-bold">My Shelves</h1>
+              <h1 className="font-playfair text-3xl font-bold text-[#ffba66]">My Shelves</h1>
               <p className="opacity-70 text-sm">Organize your reads beautifully ✨</p>
             </div>
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 rounded-lg border bg-[url('/tbrBg.png')] border-[#ffba66] text-white text-sm outline-none"
-          >
-            <option className="bg-black">All Genres</option>
-            <option className="bg-black">Romance</option>
-            <option className="bg-black">Thriller</option>
-            <option className="bg-black">Historical</option>
-            <option className="bg-black">Fantasy</option>
-            <option className="bg-black">Science Fiction</option>
-            <option className="bg-black">Non-fiction</option>
-            <option className="bg-black">Self-help</option>
-            <option className="bg-black">Mystery</option>
-          </select>
         </div>
 
-        {/* Shelves */}
-        <div className="w-full bg-transparent rounded-2xl p-6 shadow-sm flex flex-col gap-10">
-          {statusFilter === "All Genres" || statusFilter === "Reading" ? (
-            <BookShelf title="Currently reading" books={grouped.reading} />
-          ) : null}
+        {/* Shelves Content */}
+        {loading ? (
+            <div className="text-center mt-20 opacity-50">Dusting the shelves...</div>
+        ) : (
+            <div className="w-full bg-transparent rounded-2xl p-2 flex flex-col gap-6">
+            
+            {/* Show specific shelves based on filter */}
+            {(statusFilter === "All Genres" || statusFilter === "Reading") && (
+                <BookShelf title="Currently reading" books={grouped.reading} onMove={handleMove} onDelete={handleDelete} />
+            )}
 
-          {statusFilter === "All Genres" || statusFilter === "To be Read" ? (
-            <BookShelf title="Next up" books={grouped.tbr} />
-          ) : null}
+            {(statusFilter === "All Genres" || statusFilter === "To be Read") && (
+                <BookShelf title="Next up" books={grouped.tbr} onMove={handleMove} onDelete={handleDelete} />
+            )}
 
-          {statusFilter === "All Genres" || statusFilter === "Finished" ? (
-            <BookShelf title="Finished" books={grouped.finished} />
-          ) : null}
+            {(statusFilter === "All Genres" || statusFilter === "Finished") && (
+                <BookShelf title="Finished" books={grouped.finished} onMove={handleMove} onDelete={handleDelete} />
+            )}
 
-          {statusFilter === "All Genres" || statusFilter === "to buy" ? (
-            <BookShelf title="Wishlist / To buy" books={grouped.buy} />
-          ) : null}
-
-          {statusFilter === "Romance" ? (
-            <BookShelf title="Romance" books={grouped.romance} />
-          ) : null}
-
-          {statusFilter === "Thriller" ? (
-            <BookShelf title="Thriller" books={grouped.thriller} />
-          ) : null}
-
-          {statusFilter === "Historical" ? (
-            <BookShelf title="Historical" books={grouped.historical} />
-          ) : null}
-
-          {statusFilter === "Fantasy" ? (
-            <BookShelf title="Fantasy" books={grouped.fantasy} />
-          ) : null}
-
-          {statusFilter === "Science Fiction" ? (
-            <BookShelf title="Science Fiction" books={grouped.scifi} />
-          ) : null}
-
-          {statusFilter === "Non-fiction" ? (
-            <BookShelf title="Non-fiction" books={grouped.nonfiction} />
-          ) : null}
-
-          {statusFilter === "Self-help" ? (
-            <BookShelf title="Self-help" books={grouped.selfhelp} />
-          ) : null}
-
-          {statusFilter === "Mystery" ? (
-            <BookShelf title="Mystery" books={grouped.mystery} />
-          ) : null}
-
-        </div>
+            {/* Genre Shelves (Only show if selected) */}
+            {statusFilter === "Romance" && <BookShelf title="Romance" books={grouped.romance} onMove={handleMove} onDelete={handleDelete} />}
+            {statusFilter === "Thriller" && <BookShelf title="Thriller" books={grouped.thriller} onMove={handleMove} onDelete={handleDelete} />}
+            {statusFilter === "Fantasy" && <BookShelf title="Fantasy" books={grouped.fantasy} onMove={handleMove} onDelete={handleDelete} />}
+            {/* Add other genre conditions here... */}
+            
+            </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default Tbr;
+export default Library;

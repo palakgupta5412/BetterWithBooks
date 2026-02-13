@@ -34,7 +34,7 @@ const bookSchema = new mongoose.Schema({
     // We REMOVED 'quotes' to avoid the array growing too large. 
     // We will query quotes using the Quote model instead.
     
-    googleBooksId: {
+    googleBookId: {
         type: String,
         required: true,
         unique: true, // Prevents duplicate books in your DB

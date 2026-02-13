@@ -4,9 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Tbr from "./pages/Tbr";
 import Info from "./pages/Info";
-import Suggest from "./components/Suggest";
 import Cursor from "./components/Cursor";
-import Cards from "./components/Cards.jsx";
 import Quotes from "./pages/Quotes.jsx";
 import CreateQuotes from "./components/CreateQuotes.jsx";
 import Library from "./pages/Library.jsx";
@@ -25,14 +23,11 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/mytbr" element={<Cards />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path='/mytbr' element={<Cards />} />
-          {/* <Route path='/library' element={<Tbr />} /> */}
+          <Route path='/mytbr' element={<Tbr />} />
           <Route path='/quotes' element={<Quotes />} />
           <Route path='/createquote' element={<CreateQuotes />} /> 
           <Route path="/library" element={<Library />} />
-          {/* <Route path='/myquotes' element={< />} />  */}
           <Route path="/info" element={<Info />} />
           <Route path='/profile' element={<Profile />} />
         </Route>
