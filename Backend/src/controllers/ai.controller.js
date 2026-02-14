@@ -20,7 +20,7 @@ const getRecommendations = asyncHandler(async (req, res) => {
 
         const prompt = `
             I like these books: ${favoriteBooks.join(", ")}.
-            Recommend 4 other books I might like. 
+            Recommend 7 other books I might like. 
             For each book, provide:
             1. Title
             2. Author

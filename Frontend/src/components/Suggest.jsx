@@ -1,30 +1,76 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import Footer from "./Footer";
+// 1. IMPORT searchBooks HERE
+import { getAIRecommendations, searchBooks } from "../api/books.service";
 
-const Suggest = ({similarTo}) => {
+const Suggest = ({ similarTo }) => {
   const sliderRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [booksData, setBooksData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // --- 1. FETCH DATA & COVERS ---
+  const getSuggestions = async () => {
+    try {
+      setLoading(true);
+      const query = Array.isArray(similarTo) ? similarTo : [similarTo];
+      
+      // Step A: Ask AI for recommendations (Text only)
+      const res = await getAIRecommendations(query);
+      const rawData = res.data || [];
+
+      // Step B: "Search Wala Fn" to get covers
+      // We use Promise.all to fetch all covers at the same time (faster)
+      const enrichedBooks = await Promise.all(
+        rawData.map(async (item, index) => {
+          let realCover = null;
+
+          try {
+            // Search Google Books for "Title + Author"
+            const searchRes = await searchBooks(`${item.title} ${item.author}`);
+            // Take the first result's cover
+            if (searchRes.data && searchRes.data.length > 0) {
+              realCover = searchRes.data[0].coverImage;
+            }
+          } catch (err) {
+            console.warn(`Could not find cover for ${item.title}`);
+          }
+
+          return {
+            id: index,
+            bookName: item.title,
+            author: item.author,
+            description: item.reason,
+            // Use real cover if found, otherwise placeholder
+            coverImage: realCover || `https://placehold.co/400x600/1a0f0e/ffba66?text=${encodeURIComponent(item.title)}`
+          };
+        })
+      );
+
+      setBooksData(enrichedBooks);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (similarTo) {
+        getSuggestions();
+    }
+  }, [similarTo]);
+
+  // --- 2. SLIDER LOGIC (Unchanged) ---
   const scrollToIndex = (index) => {
     const slider = sliderRef.current;
     if (!slider) return;
-    
     const children = Array.from(slider.children);
     const targetChild = children[index];
-    
     if (targetChild) {
-      // Calculate the left position needed to center the child
-      const targetLeft = 
-        targetChild.offsetLeft - 
-        (slider.offsetWidth / 2) + 
-        (targetChild.offsetWidth / 2);
-
-      slider.scrollTo({
-        left: targetLeft,
-        behavior: "smooth",
-      });
+      const targetLeft = targetChild.offsetLeft - (slider.offsetWidth / 2) + (targetChild.offsetWidth / 2);
+      slider.scrollTo({ left: targetLeft, behavior: "smooth" });
     }
   };
 
@@ -38,14 +84,14 @@ const Suggest = ({similarTo}) => {
     scrollToIndex(newIndex);
   };
 
+  // Scroll Listener
   useEffect(() => {
     const slider = sliderRef.current;
-    if (!slider) return;
+    if (!slider || booksData.length === 0) return;
 
     const handleScroll = () => {
       const cards = Array.from(slider.children);
       const center = slider.scrollLeft + slider.offsetWidth / 2;
-
       let closest = 0;
       let minDist = Infinity;
 
@@ -62,172 +108,82 @@ const Suggest = ({similarTo}) => {
 
     slider.addEventListener("scroll", handleScroll, { passive: true });
     return () => slider.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [booksData]);
 
-  // Books Data Placeholder (Same as your code)
-  const booksData = [
-  {
-    id: 1,
-    bookName: "It Ends With Us",
-    author: "Colleen Hoover", 
-    genre: ["Romance", "Contemporary", "Drama"],
-    status: "Finished",
-    pagesRead: 376,
-    totalPages: 376,
-    progressPercent: 100,
-    description: "A poignant and powerful novel that explores the complexities of love and resilience.",
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/81s0B6NYXML.jpg",
-  },
-  {
-    id: 2,
-    bookName: "It Starts With Us",
-    author: "Colleen Hoover",
-    genre: ["Romance", "Contemporary"],
-    status: "To be Read",
-    pagesRead: 0,
-    totalPages: 336,
-    progressPercent: 0,
-    description: "The sequel to 'It Ends With Us', continuing the story of Lily and Ryle as they navigate new challenges in their relationship.",
-    coverImage: "https://m.media-amazon.com/images/I/81G91BUSHsL._UF1000,1000_QL80_.jpg",
-  },
-  {
-    id: 3,
-    bookName: "The Seven Husbands of Evelyn Hugo",
-    author: "Taylor Jenkins Reid",
-    genre: ["Fiction", "Romance", "Historical"],
-    status: "Reading",
-    pagesRead: 120,
-    totalPages: 400,
-    progressPercent: 30,
-    description: "A captivating novel that explores the complexities of love and family in the 19th century.",
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/71KcUgYanhL.jpg",
-  },
-  {
-    id: 4,
-    bookName: "Atomic Habits",
-    author: "James Clear",
-    genre: ["Self-help", "Productivity", "Non-fiction"],
-    status: "Finished",
-    pagesRead: 320,
-    totalPages: 320,
-    progressPercent: 100,
-    description: "An insightful guide on how small changes can lead to remarkable results in personal and professional life.",
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg",
-  },
-  {
-    id: 5,
-    bookName: "Harry Potter and the Philosopher's Stone",
-    author: "J.K. Rowling",
-    genre: ["Fantasy", "Adventure", "Young Adult"],
-    status: "Reading",
-    pagesRead: 90,
-    totalPages: 223,
-    progressPercent: 40,
-    description: "The first book in the beloved Harry Potter series, introducing readers to the magical world of Hogwarts.",
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/81YOuOGFCJL.jpg",
-  },
-  {
-    id: 6,
-    bookName: "The Alchemist",
-    author: "Paulo Coelho",
-    genre: ["Fiction", "Philosophical", "Adventure"],
-    status: "To be Read",
-    pagesRead: 0,
-    totalPages: 208,
-    progressPercent: 0,
-    description: "A powerful story of self-discovery and the pursuit of spiritual enlightenment.",
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/71aFt4+OTOL.jpg",
-  },
-  {
-    id: 7,
-    bookName: "A Good Girl's Guide to Murder",
-    author: "Holly Jackson",
-    genre: ["Mystery", "Thriller", "Young Adult"],
-    status: "To be Read",
-    pagesRead: 0,
-    totalPages: 433,
-    progressPercent: 0,
-    description: "A gripping mystery novel that follows a young girl's investigation into a murder case.",
-    coverImage: "https://upload.wikimedia.org/wikipedia/en/e/e2/A_Good_Girl%27s_Guide_to_Murder.jpg",
-  },
-  {
-    id: 8,
-    bookName: "The Silent Patient",
-    author: "Alex Michaelides",
-    genre: ["Psychological Thriller", "Mystery"],
-    status: "to buy",
-    pagesRead: 0,
-    totalPages: 336,
-    progressPercent: 0,
-    description: "A gripping psychological thriller that follows a woman's investigation into a missing woman's case.",
-    coverImage: "https://images-na.ssl-images-amazon.com/images/I/81JJPDNlxSL.jpg",
-  },
-];
+  
+  // --- 3. RENDER ---
+  if (loading) {
+    return (
+      <div className="w-full h-[50vh] flex flex-col items-center justify-center text-white gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#ffba66]"></div>
+        <p className="font-playfair italic opacity-60">Consulting the AI Librarian & Fetching Covers...</p>
+      </div>
+    );
+  }
 
-const navigate = useNavigate();
+  if (booksData.length === 0) return null;
+
+  const currentBook = booksData[activeIndex];
 
   return (
-    <>
-    <div className="overflow-x-hidden text-white mx-32 min-h-screen relative w-full flex flex-col gap-10 overflow-hidden">
-      {/* Background Image */}
-      {/* <img src='/buttonBg.png' className='pointer-events-none opacity-40 absolute inset-0 w-full h-full object-cover z-0' /> */}
-
-      <div className="flex gap-3 px-4 py-4">
-        <h2>Some more books like <span className="italic text-lg text-zinc-400 mb-24">{similarTo}</span></h2>
-      </div>
-      {/* Book Details Section */}
-      <div className="flex justify-between">
+    <div className="overflow-x-hidden text-white w-full flex flex-col gap-10 overflow-hidden py-10">
       
-        <div className="relative z-10 w-1/2 px-4 text-white">
-          <h1 className="text-5xl text-[#ffba66] mb-2 font-extrabold transition-all duration-300">
-            {booksData[activeIndex].bookName}
+      {/* Header */}
+      <div className="flex gap-3 px-4 md:px-32">
+        <h2 className="text-xl">Because you liked <span className="italic text-[#ffba66] font-serif">"{similarTo}"</span></h2>
+      </div>
+
+      {/* Book Details Section */}
+      <div className="flex flex-col md:flex-row justify-between px-4 md:px-32 gap-8 md:gap-0">
+        <div className="relative z-10 w-full md:w-1/2 text-white">
+          <h1 className="text-4xl md:text-5xl text-[#ffba66] mb-2 font-extrabold transition-all duration-300 font-playfair leading-tight">
+            {currentBook.bookName}
           </h1>
-          <p className="text-white font-bold text-xl opacity-80">{booksData[activeIndex].author}</p>
-          <p className="text-md opacity-70 text-white font-semibold mt-4">{booksData[activeIndex].description.slice(0, 60)} <span className="text-[#ffba66] hover:text-[#ffba66]">...read more</span></p>
+          <p className="text-white font-bold text-xl opacity-80 mb-4">{currentBook.author}</p>
+          <div className="bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-sm">
+            <p className="text-md opacity-90 text-gray-300 italic leading-relaxed">
+              "{currentBook.description}"
+            </p>
+          </div>
         </div>
 
-        <div className="w-1/2 my-10 text-[#ffba66] h-3 flex mx-auto justify-end pr-44 items-center gap-16 z-20">
-          <FaArrowLeft 
-            className="cursor-pointer hover:scale-125 transition-transform" 
-            onClick={prevSlide} 
-            size={36}
-          />
-          <FaArrowRight 
-            className="cursor-pointer hover:scale-125 transition-transform" 
-            onClick={nextSlide} 
-            size={36}
-          />
+        {/* Arrows */}
+        <div className="hidden md:flex w-1/2 justify-end items-center gap-8 pr-10">
+          <button onClick={prevSlide} disabled={activeIndex === 0} className="p-4 rounded-full border border-[#ffba66]/30 text-[#ffba66] hover:bg-[#ffba66] hover:text-black transition-all disabled:opacity-30">
+             <FaArrowLeft size={24} />
+          </button>
+          <button onClick={nextSlide} disabled={activeIndex === booksData.length - 1} className="p-4 rounded-full border border-[#ffba66]/30 text-[#ffba66] hover:bg-[#ffba66] hover:text-black transition-all disabled:opacity-30">
+             <FaArrowRight size={24} />
+          </button>
         </div>
       </div>
-      {/* 2. THE SLIDER CONTAINER */}
+
+      {/* Slider */}
       <div 
         ref={sliderRef} 
-        className="z-10 mt-12 relative flex w-full h-[390px] gap-8 px-[40%] overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide items-center rounded-md overflow-y-visible"
-        style={{ scrollPadding: "0 40%" }} // Keeps active item centered
+        className="z-10 mt-4 relative flex w-full h-[450px] gap-12 px-[50%] overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide items-center"
+        style={{ scrollPadding: "0 50%" }}
       >
         {booksData.map((book, index) => (
           <div
             key={book.id}
-            className="snap-center shrink-0 flex flex-col items-center justify-center transition-all duration-500 ease-in-out"
-            style={{ perspective: "1000px" }} // Adds depth for the scale effect
+            className="snap-center shrink-0 flex flex-col items-center justify-center transition-all duration-500 ease-in-out cursor-pointer"
+            onClick={() => scrollToIndex(index)}
+            style={{ perspective: "1000px" }} 
           >
             <img
               src={book.coverImage}
               alt={book.bookName}
-              className={`rounded-md shadow-2xl transition-all duration-500 ease-in-out object-cover
+              className={`rounded-lg shadow-[0_10px_50px_rgba(0,0,0,0.5)] transition-all duration-500 ease-in-out object-cover border border-white/10
                 ${index === activeIndex 
-                  ? "w-[240px] h-[350px] scale-110 rotate-0 opacity-100 z-50" 
-                  : "w-[150px] h-[220px] scale-90 opacity-50 grayscale-[50%]"
+                  ? "w-[260px] h-[380px] scale-110 opacity-100 z-50 brightness-110" 
+                  : "w-[180px] h-[280px] scale-90 opacity-40 grayscale-[80%] hover:opacity-60"
                 }`}
             />
           </div>
         ))}
       </div>
-
-      
     </div>
-    <Footer />
-    </>
   );
 };
 
