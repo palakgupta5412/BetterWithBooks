@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Loader from "./pages/Loader";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Tbr from "./pages/Tbr";
+import Tbr from "./pages/Tbr.jsx"
 import Info from "./pages/Info";
 import Cursor from "./components/Cursor";
 import Quotes from "./pages/Quotes.jsx";
@@ -11,6 +11,7 @@ import Library from "./pages/Library.jsx";
 import Explore from "./pages/Explore.jsx";
 import Profile from "./pages/Profile.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Recommendations from "./pages/Recommendations.jsx";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/library" element={<Library />} />
           <Route path="/info" element={<Info />} />
           <Route path='/profile' element={<Profile />} />
+          <Route path="/recommendations" element={<Recommendations />} />
         </Route>
       </Routes>
     </>

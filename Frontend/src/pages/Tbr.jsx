@@ -1,594 +1,200 @@
-// import React, { useMemo, useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import { MdOutlineArrowRight } from "react-icons/md";
-// import { FaArrowLeft } from "react-icons/fa";
-
-// const booksData = [
-//   {
-//     id: 1,
-//     bookName: "It Ends With Us",
-//     author: "Colleen Hoover", 
-//     genre: ["Romance", "Contemporary", "Drama"],
-//     status: "Finished",
-//     pagesRead: 376,
-//     totalPages: 376,
-//     progressPercent: 100,
-//     coverImage: "https://images-na.ssl-images-amazon.com/images/I/81s0B6NYXML.jpg",
-//   },
-//   {
-//     id: 2,
-//     bookName: "It Starts With Us",
-//     author: "Colleen Hoover",
-//     genre: ["Romance", "Contemporary"],
-//     status: "To be Read",
-//     pagesRead: 0,
-//     totalPages: 336,
-//     progressPercent: 0,
-//     coverImage: "https://m.media-amazon.com/images/I/81G91BUSHsL._UF1000,1000_QL80_.jpg",
-//   },
-//   {
-//     id: 3,
-//     bookName: "The Seven Husbands of Evelyn Hugo",
-//     author: "Taylor Jenkins Reid",
-//     genre: ["Fiction", "Romance", "Historical"],
-//     status: "Reading",
-//     pagesRead: 120,
-//     totalPages: 400,
-//     progressPercent: 30,
-//     coverImage: "https://images-na.ssl-images-amazon.com/images/I/71KcUgYanhL.jpg",
-//   },
-//   {
-//     id: 4,
-//     bookName: "Atomic Habits",
-//     author: "James Clear",
-//     genre: ["Self-help", "Productivity", "Non-fiction"],
-//     status: "Finished",
-//     pagesRead: 320,
-//     totalPages: 320,
-//     progressPercent: 100,
-//     coverImage: "https://images-na.ssl-images-amazon.com/images/I/91bYsX41DVL.jpg",
-//   },
-//   {
-//     id: 5,
-//     bookName: "Harry Potter and the Philosopher's Stone",
-//     author: "J.K. Rowling",
-//     genre: ["Fantasy", "Adventure", "Young Adult"],
-//     status: "Reading",
-//     pagesRead: 90,
-//     totalPages: 223,
-//     progressPercent: 40,
-//     coverImage: "https://images-na.ssl-images-amazon.com/images/I/81YOuOGFCJL.jpg",
-//   },
-//   {
-//     id: 6,
-//     bookName: "The Alchemist",
-//     author: "Paulo Coelho",
-//     genre: ["Fiction", "Philosophical", "Adventure"],
-//     status: "To be Read",
-//     pagesRead: 0,
-//     totalPages: 208,
-//     progressPercent: 0,
-//     coverImage: "https://images-na.ssl-images-amazon.com/images/I/71aFt4+OTOL.jpg",
-//   },
-//   {
-//     id: 7,
-//     bookName: "A Good Girl's Guide to Murder",
-//     author: "Holly Jackson",
-//     genre: ["Mystery", "Thriller", "Young Adult"],
-//     status: "To be Read",
-//     pagesRead: 0,
-//     totalPages: 433,
-//     progressPercent: 0,
-//     coverImage: "https://upload.wikimedia.org/wikipedia/en/e/e2/A_Good_Girl%27s_Guide_to_Murder.jpg",
-//   },
-//   {
-//     id: 8,
-//     bookName: "The Silent Patient",
-//     author: "Alex Michaelides",
-//     genre: ["Psychological Thriller", "Mystery"],
-//     status: "to buy",
-//     pagesRead: 0,
-//     totalPages: 336,
-//     progressPercent: 0,
-//     coverImage: "https://images-na.ssl-images-amazon.com/images/I/81JJPDNlxSL.jpg",
-//   },
-// ];
-
-// const BookCard = ({ book }) => {
-//   const navigate = useNavigate();
-//   return (
-//     <div className="min-w-[110px] flex flex-col items-center group cursor-pointer">
-      
-//       <p className="opacity-0 group-hover:opacity-100 text-[11px] mt-2 text-center font-medium line-clamp-1 w-[110px]">
-//         {book.bookName}
-//       </p>
-//       <p className="opacity-0 group-hover:opacity-70 text-[10px] mb-1 line-clamp-1">{book.author}</p>
-//       {book.status === "Reading" && (
-//         <div className="absolute text-xs opacity-0 group-hover:opacity-100 -top-8 left-1/2 w-2 h-2 rounded-full pr-20 ">{book.progressPercent}% read</div>
-//       )}
-//       <div className="w-[90px] h-[120px] rounded-md overflow-hidden shadow-md group-hover:scale-[1.03] transition">
-//         <img
-//           onClick={()=>navigate('/explore' , {state: {book}})}
-//           src={book.coverImage ? book.coverImage : "/aboutImg/3.jpg"}
-//           alt={book.bookName}
-//           className="w-full group h-full object-cover"
-//         />
-//       </div>
-
-      
-//     </div>
-//   );
-// };
-
-// const BookShelf = ({ title, books }) => {
-//   return (
-//     <div className="w-full">
-//       {/* heading */}
-//       <div className="w-full flex justify-between items-center mb-2">
-//         <h2 className="font-playfair text-lg font-semibold">{title}</h2>
-//         <button className="text-xs opacity-70 hover:opacity-100 flex items-center gap-1">
-//           Full shelf <MdOutlineArrowRight />
-//         </button>
-//       </div>
-
-//       {/* shelf board + books */}
-//       <div className="relative w-full">
-//         {/* Books row */}
-//         <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-2 scrollbar-hide">
-//           {books.length === 0 ? (
-//             <p className="text-sm opacity-60 px-4 py-4">No books here yet ✨</p>
-//           ) : (
-//             books.map((b) => <BookCard key={b.id} book={b} />)
-//           )}
-//         </div>
-
-//         {/* shelf plank */}
-//         <div className="absolute bottom-3 left-0 w-full h-[12px] bg-[#ffc983f3] rounded-md shadow-inner"></div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// const Tbr = () => {
-//   const [statusFilter, setStatusFilter] = useState("All Genres");
-//   const navigate = useNavigate();
-//   // status wise grouping
-//   const grouped = useMemo(() => {
-//     const reading = booksData.filter((b) => b.status === "Reading");
-//     const tbr = booksData.filter((b) => b.status === "To be Read");
-//     const finished = booksData.filter((b) => b.status === "Finished");
-//     const buy = booksData.filter((b) => b.status === "to buy");
-//     const romance = booksData.filter((b) => b.genre.includes("Romance"));
-//     const thriller = booksData.filter((b) => b.genre.includes("Thriller"));
-//     const historical = booksData.filter((b) => b.genre.includes("Historical"));
-//     const fantasy = booksData.filter((b) => b.genre.includes("Fantasy"));
-//     const scifi = booksData.filter((b) => b.genre.includes("Science Fiction"));
-//     const nonfiction = booksData.filter((b) => b.genre.includes("Non-fiction"));
-//     const selfhelp = booksData.filter((b) => b.genre.includes("Self-help"));
-//     const mystery = booksData.filter((b) => b.genre.includes("Mystery"));
-
-//     return { reading, tbr, finished, buy, romance, thriller, historical, fantasy, scifi, nonfiction, selfhelp, mystery };
-//   }, []);
-
-//   return (
-//     <div className="text-white w-full min-h-screen flex bg-[url('/tbrBg.png')] bg-cover bg-no-repeat">
-//       {/* Sidebar */}
-//       <div className="w-[280px] sticky max-h-screen px-4 bg-transparent border-r flex flex-col pb-6 items-center">
-        
-//         <img src="/logoF.png" alt="Logo" className="w-46 mt-4" />
-
-//         <div className="w-full mt-7 flex flex-col gap-1">
-//           <Link to="/" className="px-4 py-1 rounded-lg hover:bg-black/5">
-//             Home
-//           </Link>
-//           <Link to="/library" className="px-4 py-2 rounded-lg hover:bg-black/5">
-//             Library
-//           </Link>
-//           <Link
-//             to="/tbr"
-//             className="px-4 py-2 rounded-lg bg-[#ffba66]/30 font-semibold"
-//           >
-//             My Shelves
-//           </Link>
-//           <Link to="/quotes" className="px-4 py-2 rounded-lg hover:bg-black/5">
-//             Quotes
-//           </Link>
-//           <Link to="/profile" className="px-4 py-2 rounded-lg hover:bg-black/5">
-//             Profile
-//           </Link>
-//         </div>
-
-//         {/* profile mini */}
-//         <div id="profile" className="cursor-pointer w-full mt-auto flex items-center gap-3 pt-6">
-//           <img
-//             src="/aboutImg/1.jpg"
-//             onClick={()=>navigate('/profile')}
-//             className="w-12 h-12 rounded-full object-cover"
-//             alt="Profile"
-//           />
-//           <div>
-//             <p className="hover:underline font-semibold">Palak Sharma</p>
-//             <p className="hover:underline text-xs opacity-70">@palaksharma</p>
-//           </div>
-//         </div>
-
-//         <div className="text-xs text-[#ff981a] flex justify-end w-full pr-2 items-center cursor-pointer hover:text-[#ffba66] mt-2">
-//           View Profile <MdOutlineArrowRight size={20} />
-//         </div>
-//       </div>
-
-//       {/* Main */}
-//       <div className="scroll-y-auto h-screen overflow-scroll overflow-x-hidden flex-1 p-6">
-//         {/* Top controls */}
-//         <div className="w-full flex justify-between items-center mb-6">
-//           <div className="flex gap-4 items-center">
-//             <FaArrowLeft className="text-3xl cursor-pointer" onClick={()=>navigate(-1)}/>
-//             <div>  
-//               <h1 className="font-playfair text-3xl font-bold">My Shelves</h1>
-//               <p className="opacity-70 text-sm">Organize your reads beautifully ✨</p>
-//             </div>
-//           </div>
-
-//           <select
-//             value={statusFilter}
-//             onChange={(e) => setStatusFilter(e.target.value)}
-//             className="px-3 py-2 rounded-lg border bg-[url('/tbrBg.png')] border-[#ffba66] text-white text-sm outline-none"
-//           >
-//             <option className="bg-black">All Genres</option>
-//             <option className="bg-black">Romance</option>
-//             <option className="bg-black">Thriller</option>
-//             <option className="bg-black">Historical</option>
-//             <option className="bg-black">Fantasy</option>
-//             <option className="bg-black">Science Fiction</option>
-//             <option className="bg-black">Non-fiction</option>
-//             <option className="bg-black">Self-help</option>
-//             <option className="bg-black">Mystery</option>
-//           </select>
-//         </div>
-
-//         {/* Shelves */}
-//         <div className="w-full bg-transparent rounded-2xl p-6 shadow-sm flex flex-col gap-10">
-//           {statusFilter === "All Genres" || statusFilter === "Reading" ? (
-//             <BookShelf title="Currently reading" books={grouped.reading} />
-//           ) : null}
-
-//           {statusFilter === "All Genres" || statusFilter === "To be Read" ? (
-//             <BookShelf title="Next up" books={grouped.tbr} />
-//           ) : null}
-
-//           {statusFilter === "All Genres" || statusFilter === "Finished" ? (
-//             <BookShelf title="Finished" books={grouped.finished} />
-//           ) : null}
-
-//           {statusFilter === "All Genres" || statusFilter === "to buy" ? (
-//             <BookShelf title="Wishlist / To buy" books={grouped.buy} />
-//           ) : null}
-
-//           {statusFilter === "Romance" ? (
-//             <BookShelf title="Romance" books={grouped.romance} />
-//           ) : null}
-
-//           {statusFilter === "Thriller" ? (
-//             <BookShelf title="Thriller" books={grouped.thriller} />
-//           ) : null}
-
-//           {statusFilter === "Historical" ? (
-//             <BookShelf title="Historical" books={grouped.historical} />
-//           ) : null}
-
-//           {statusFilter === "Fantasy" ? (
-//             <BookShelf title="Fantasy" books={grouped.fantasy} />
-//           ) : null}
-
-//           {statusFilter === "Science Fiction" ? (
-//             <BookShelf title="Science Fiction" books={grouped.scifi} />
-//           ) : null}
-
-//           {statusFilter === "Non-fiction" ? (
-//             <BookShelf title="Non-fiction" books={grouped.nonfiction} />
-//           ) : null}
-
-//           {statusFilter === "Self-help" ? (
-//             <BookShelf title="Self-help" books={grouped.selfhelp} />
-//           ) : null}
-
-//           {statusFilter === "Mystery" ? (
-//             <BookShelf title="Mystery" books={grouped.mystery} />
-//           ) : null}
-
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Tbr;
-
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useScroll, useMotionValueEvent } from 'framer-motion';
-import { FaArrowAltCircleDown, FaArrowLeft, FaSearch, FaSearchPlus } from 'react-icons/fa';
-// import Button from './Button';
+import { FaArrowAltCircleDown, FaArrowLeft } from 'react-icons/fa';
 import TextReveal from '../hooks/textReveal';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
+import { getMyShelf } from '../api/books.service';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Tbr = () => {
-
-    const navigate = useNavigate();
-
-    const tbr = [
-      {
-        "id": 1,
-        "title": "Atomic Habits",
-        "author": "James Clear",
-        "cover": "https://books.google.com/books/content?id=atomic-habits-cover&printsec=frontcover&img=1&zoom=1",
-        "genre": ["Self-help", "Productivity"],
-        "description": "A practical guide to building good habits and breaking bad ones using tiny changes that deliver remarkable results.",
-        "rating": 4.8,
-        "year": 2018,
-        "isbn": "9780735211292",
-        "status": "TBR"
-      },
-      {
-        "id": 2,
-        "title": "The Silent Patient",
-        "author": "Alex Michaelides",
-        "cover": "https://books.google.com/books/content?id=silent-patient-cover&printsec=frontcover&img=1&zoom=1",
-        "genre": ["Thriller", "Mystery", "Psychological"],
-        "description": "A woman shoots her husband and never speaks again. A psychotherapist becomes obsessed with uncovering her motive.",
-        "rating": 4.5,
-        "year": 2019,
-        "isbn": "9781250301697",
-        "status": "TBR"
-      },
-      {
-        "id": 3,
-        "title": "It Ends With Us",
-        "author": "Colleen Hoover",
-        "cover": "https://books.google.com/books/content?id=it-ends-with-us-cover&printsec=frontcover&img=1&zoom=1",
-        "genre": ["Romance", "Contemporary"],
-        "description": "A powerful story about love, resilience, and difficult choices in relationships.",
-        "rating": 4.6,
-        "year": 2016,
-        "isbn": "9781501110368",
-        "status": "TBR"
-      },
-      {
-        "id": 4,
-        "title": "The Alchemist",
-        "author": "Paulo Coelho",
-        "cover": "https://books.google.com/books/content?id=the-alchemist-cover&printsec=frontcover&img=1&zoom=1",
-        "genre": ["Fiction", "Philosophical"],
-        "description": "A shepherd boy travels in search of treasure and discovers the meaning of life along the way.",
-        "rating": 4.7,
-        "year": 1988,
-        "isbn": "9780061122415",
-        "status": "TBR"
-      },
-      {
-        "id": 5,
-        "title": "Ikigai",
-        "author": "Héctor García & Francesc Miralles",
-        "cover": "https://books.google.com/books/content?id=ikigai-cover&printsec=frontcover&img=1&zoom=1",
-        "genre": ["Self-help", "Lifestyle"],
-        "description": "Explores the Japanese concept of ikigai — the reason for being — and secrets to a long, happy life.",
-        "rating": 4.4,
-        "year": 2016,
-        "isbn": "9780143130727",
-        "status": "TBR"
-      }
-    ]
-
-    const tbrRef = React.useRef(null);
-    const [addNew , setAddNew] = useState(false);
-
-    //new books info :
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-    const [genre, setGenre] = useState([]);
-    const [rating, setRating] = useState(0);
-    const [cover, setCover] = useState('');
-    const toggleAddNew = () => {
-        setAddNew(!addNew);
+  const [tbr, setTbr] = useState([]);
+  const navigate = useNavigate();
+  const tbrRef = useRef(null);
+  
+  // --- 1. FETCH DATA ---
+  const fetchTBR = async () => {
+    try {
+      const books = await getMyShelf();
+      setTbr(books.data.tbr || []);
+    } catch (error) {
+      console.error("Failed to fetch TBR:", error);
     }
+  }
 
-    useGSAP(()=>{
-        const cards = tbrRef.current.querySelectorAll('.group');
-        cards.forEach((card, index) => {
-            gsap.fromTo(card, {
-                opacity: 0,
-                scale: 0.8,
-                y: 50
-            }, {
-                opacity: 1,
-                scale: 1,
-                y: 0,
-                duration: 0.8,
-                stagger: 0.2,
-                delay : 0.1,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: card,
-                    start: "top 90%", // Animation starts when element is 85% down the screen
-                    toggleActions: "play reverse", // Plays on scroll down, reverses on scroll up
-                },
-            } , {scope: card})
-                
-        })
-    })
+  useEffect(() => {
+    fetchTBR();
+  }, []);
 
-  const [imgData, setImgData] = useState([
-    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1718283728i/213243908.jpg", top: "35%", left: "30%", rotate : "-90deg", isActive: false },
-    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1634158558i/59344312.jpg", top: "35%", left: "34%", rotate : "-70deg", isActive: false },
-    { url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwrr6PAkFGsrxAFnlNTgbGln_d7bFPK5mMbw&s", top: "35%", left: "36%", rotate : "-50deg", isActive: false },
-    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1581589570l/52227678.jpg", top: "35%", left: "38%", rotate : "-30deg", isActive: false },
-    { url: "https://marketplace.canva.com/EAFOu64R3Gk/2/0/1003w/canva-pink-and-purple-cute-young-adult-love-romance-book-cover-K15yUkKnrPo.jpg" , top: "39%", left: "42%", rotate : "0deg", isActive: false },
-    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1646534743i/60556912.jpg", top: "50%", left: "44%", rotate : "30deg", isActive: false },
-    { url: "https://m.media-amazon.com/images/I/61R+Cpm+HxL._AC_UF1000,1000_QL80_.jpg", top: "60%", left: "42%", rotate : "50deg", isActive: false },
-    { url: "https://m.media-amazon.com/images/I/81Y+9pH0TAL._AC_UF1000,1000_QL80_.jpg", top: "65%", left: "40%", rotate : "70deg", isActive: false },
-    { url: "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9780861546749/the-way-i-used-to-be-9780861546749_hr.jpg", top: "65%", left: "39%", rotate : "90deg", isActive: false },
-]);
+  useGSAP(() => {
+    if (tbr.length === 0) return;
 
+    const cards = tbrRef.current.querySelectorAll('.group');
+    
+    gsap.fromTo(cards, 
+      { opacity: 0, scale: 0.9, y: 50 }, 
+      {
+        opacity: 1, scale: 1, y: 0,
+        duration: 0.8, stagger: 0.1, ease: "power3.out",
+        scrollTrigger: {
+          trigger: tbrRef.current,
+          start: "top 80%", // Starts when top of list hits 80% of viewport
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+  }, { scope: tbrRef, dependencies: [tbr] });
+
+  // --- 3. SCROLL IMAGE LOGIC ---
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { scrollYProgress } = useScroll();
 
-  const imageShow = (indices) => {
-    setImgData((prev) =>
-      prev.map((item, index) => ({
-        ...item,
-        isActive: indices.includes(index),
-      }))
-    );
-  };
-
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const scrollVal = Math.floor(latest * 55);
-    switch (scrollVal) {
-      case 0:  imageShow([]); break;
-      case 1:  imageShow([0]); break;
-      case 2:  imageShow([0, 1]); break;
-      case 3:  imageShow([0, 1, 2]); break;
-      case 4:  imageShow([0, 1, 2, 3]); break;
-      case 5:  imageShow([0, 1, 2, 3, 4]); break;
-      case 6:  imageShow([0, 1, 2, 3, 4, 5]); break;
-      case 7:  imageShow([0, 1, 2, 3, 4, 5, 6]); break;
-      case 8:  imageShow([0, 1, 2, 3, 4, 5, 6, 7]); break;
-      case 9:  imageShow([0, 1, 2, 3, 4, 5, 6, 7, 8]); break;
-      default: imageShow([0, 1, 2, 3, 4, 5 , 6, 7, 8]); break;
-    }
+    // Map scroll (0 to 1) to image index (0 to 8)
+    // We want the images to finish cycling by the time we scroll past the first screen height
+    const scrollCap = Math.min(latest * 2.5, 1); 
+    const index = Math.floor(scrollCap *8); 
+    setActiveImageIndex(index);
   });
 
+  const imgData = [
+    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1718283728i/213243908.jpg", rotate: "-16deg", z: 10 },
+    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1634158558i/59344312.jpg", rotate: "-10deg", z: 20 },
+    { url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwrr6PAkFGsrxAFnlNTgbGln_d7bFPK5mMbw&s", rotate: "-4deg", z: 30 },
+    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1581589570l/52227678.jpg", rotate: "2deg", z: 40 },
+    { url: "https://marketplace.canva.com/EAFOu64R3Gk/2/0/1003w/canva-pink-and-purple-cute-young-adult-love-romance-book-cover-K15yUkKnrPo.jpg", rotate: "8deg", z: 50 },
+    { url: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1646534743i/60556912.jpg", rotate: "14deg", z: 60 },
+    { url: "https://m.media-amazon.com/images/I/61R+Cpm+HxL._AC_UF1000,1000_QL80_.jpg", rotate: "20deg", z: 70 },
+    { url: "https://m.media-amazon.com/images/I/81Y+9pH0TAL._AC_UF1000,1000_QL80_.jpg", rotate: "26deg", z: 80 },
+    { url: "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9780861546749/the-way-i-used-to-be-9780861546749_hr.jpg", rotate: "15deg", z: 90 },
+  ];
+
   return (
-    <div className='w-full flex flex-col bg-[#170b01] overflow-hidden' >
-      {/* 150vh gives enough scroll room to trigger all images */}
-      <div className='max-w-screen-2xl mx-auto h-[180vh] flex relative'>
-        {/* LEFT SIDE: Content Space */}
-        <div className='w-[40%] sticky top-0 h-screen flex flex-col justify-center px-20 z-10'>
-        <h1 className='sticky mb-20 left-10 z-20 text-3xl text-[#ffba66] cursor-pointer'><FaArrowLeft onClick={()=>navigate(-1)} /></h1>
-          <h2 className='text-[#ffba66] text-sm uppercase tracking-[0.4em] font-bold mb-4'>Curated Selection</h2>
-          <h1 className='text-5xl font-serif text-white font-bold leading-tight'>
-            Books that felt like <span className='italic text-[#ffba66]'>home.</span>
-          </h1>
-          <p className='text-white/60 mt-6 text-lg leading-relaxed'>
-            Scroll to explore the visual journey of stories that shaped our perspective. Each cover represents a world waiting to be rediscovered.
-          </p>
-          <div className='mt-10 h-1 w-20 bg-[#ffba66]'></div>
-        </div>
-
-        {/* RIGHT SIDE: Image Animation Stack */}
-        <div className='w-[60%] mx-auto sticky top-0 h-screen overflow-hidden pointer-events-none'>
-          {/* Faint background text shifted right */}
-          <h1 className='absolute top-1/2 left-0 text-center -translate-y-1/2 text-[15vw] font-bold text-white/[0.03] select-none mx-auto w-full justify-center items-center pointer-events-none'>
-            BOOKS TBR
-          </h1>
-          
-          <div className='absolute inset-0'>
-            {imgData.map((item, index) => (
-              item.isActive && (
-                <img
-                  src={item.url}
-                  key={index}
-                  alt={`Book ${index}`}
-                  className='absolute rounded-lg shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-white/5 w-44 md:w-48 -translate-x-1/2 -translate-y-1/2 transition-all duration-300'
-                  style={{ 
-                    top: item.top, 
-                    left: item.left,
-                    transform: `rotate(${item.rotate}) translateX(-50%) translateY(-50%)`,
-                    zIndex: index + 10 // Ensures newer images appear on top
-                  }}
-                />
-              )
-            ))}
-          </div>
-        </div>
-
-      </div>
-
-      <div className='max-w-screen h-auto w-full overflow-hidden flex flex-col justify-start items-start absolute top-[100%] mx-auto bg-[#170b01]'>
-        {/* <h2 className='text-3xl w-full justify-center items-center text-center mb-10 text-[#ffba66] font-bold'>Your TBR</h2> */}
-        <TextReveal className='text-center w-full font-bold font-playfair tracking-wider mt-20 mb-10 text-4xl text-[#ffba66]' text="Your TBR"/>
-        <div ref={tbrRef} className='mx-auto w-full flex flex-col justify-center items-center pb-20'>
-            {tbr.map((book) => (
-              <div 
-                key={book.id} 
-                className='group flex items-center h-32 border border-[#ffba66]/30 hover:border-[#ffba66] gap-6 w-[85%] max-w-4xl mb-4 bg-white/5 backdrop-blur-md rounded-xl p-4 transition-all duration-300 hover:bg-[#ffba66]/10'
-              >
-                {/* Small Cover Image in List */}
-                <div className='h-24 w-16 shrink-0 overflow-hidden rounded-md shadow-lg'>
-                  <img src={book.cover} alt={book.title} className='h-full w-full object-cover group-hover:scale-110 transition-transform' />
-                </div>
-            
-                {/* Book Details */}
-                <div className='flex-grow'>
-                  <div className='flex justify-between items-start'>
-                    <div>
-                      <h4 className='text-xl font-bold text-white group-hover:text-[#ffba66] transition-colors'>{book.title}</h4>
-                      <p className='text-sm text-white/60'>by {book.author}</p>
-                    </div>
-                    <span className='text-[#ffba66] font-mono text-sm'>★ {book.rating}</span>
-                  </div>
-            
-                  {/* Genre Tags */}
-                  <div className='flex gap-2 mt-3'>
-                    {book.genre.map((g, i) => (
-                      <span key={i} className='text-[10px] uppercase tracking-tighter border border-[#ffba66]/50 text-[#ffba66] px-2 py-0.5 rounded-full'>
-                        {g}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Action Arrow */}
-                <div className='opacity-0 group-hover:opacity-100 transition-opacity pr-4'>
-                  <FaArrowAltCircleDown className='text-[#ffba66] text-2xl rotate-[-90deg]' />
-                </div>
-                
-              </div>
-              
-            ))}
-            <Button text="Add new Book" onClick={toggleAddNew} className={"text-sm"}/>
-
-            <div className='mt-10 h-[1px] w-32 bg-[#ffba66]/50'>
-            
-            </div>
-            {addNew ? 
-            <div className=" flex flex-col items-center mt-10 gap-4 w-[85%] max-w-4xl">
-                <div className='flex border w-[70%] bg-[#ffffff]/10 border-[#ffba66]/30 items-center gap-4 justify-start px-6 text-white'>
-                    <FaSearch size={24} className='text-[#ffba66]/50'/>
-                    <input className='w-[70%] bg-transparent outline-none py-2 ' type='text'/>
-                </div>
-                <input type="text" placeholder="Book Title" className="w-full p-3 rounded-md bg-[#ffffff]/10 border border-[#ffba66]/30 text-white focus:outline-none focus:border-[#ffba66]" value={title} onChange={(e) => setTitle(e.target.value)}/>
-                <input type="text" placeholder="Author" className="w-full p-3 rounded-md bg-[#ffffff]/10 border border-[#ffba66]/30 text-white focus:outline-none focus:border-[#ffba66]" value={author} onChange={(e) => setAuthor(e.target.value)}/>
-                <input type="text" placeholder="Genre(s)" className="w-full p-3 rounded-md bg-[#ffffff]/10 border border-[#ffba66]/30 text-white focus:outline-none focus:border-[#ffba66]" value={genre} onChange={(e) => setGenre(e.target.value.split(','))}/>
-                <input type="text" placeholder="Cover Image URL" className="w-full p-3 rounded-md bg-[#ffffff]/10 border border-[#ffba66]/30 text-white focus:outline-none focus:border-[#ffba66]" value={cover} onChange={(e) => setCover(e.target.value)}/>                
-                <Button text="Add to TBR" className={"text-sm self-end"} onClick={() => {
-                  const newBook = {
-                    id: tbr.length + 1,
-                    title,
-                    author,
-                    genre: genre.map(g => g.trim()),
-                    rating,
-                    cover
-                  };
-                  setTbr([...tbr, newBook]);
-                  setTitle('');
-                  setAuthor('');
-                  setGenre([]);
-                  setCover('');
-                  setRating(0);
-                  toggleAddNew();
-                }}/>
-            </div> 
-            :
-            <div className="mt-4">
-                <p className='text-white/60 text-sm'>Scroll up to explore more books that await your discovery.</p>    
-            </div>} 
-        </div>
+    <div className='w-full bg-[#170b01] min-h-screen text-white overflow-x-hidden'>
+      
+      {/* --- HERO SECTION (Sticky Scroll) --- */}
+      {/* "h-[200vh]" makes the page tall enough to scroll through the images before hitting the list */}
+      <div className='relative w-full h-[200vh]'>
         
+        <div className='fixed top-0 h-screen w-full flex flex-col md:flex-row overflow-hidden'>
+            
+            {/* LEFT: Text Content */}
+            <div className='w-full md:w-[40%] h-[40vh] md:h-full flex flex-col justify-center px-6 md:px-20 z-20 relative bg-gradient-to-b from-[#170b01] via-[#170b01]/80 to-transparent md:bg-none'>
+                <button onClick={() => navigate(-1)} className="absolute top-6 left-6 md:top-10 md:left-10 text-[#ffba66] text-2xl md:text-3xl hover:scale-110 transition z-50">
+                    <FaArrowLeft />
+                </button>
+            
+                <h2 className='text-[#ffba66] text-xs md:text-sm uppercase tracking-[0.3em] font-bold mb-4 animate-pulse'>Curated Selection</h2>
+                <h1 className='text-4xl md:text-6xl font-serif font-bold leading-tight'>
+                    Books that felt like <span className='italic text-[#ffba66]'>home.</span>
+                </h1>
+                <p className='text-white/60 mt-4 md:mt-6 text-sm md:text-lg leading-relaxed max-w-md'>
+                    A visual journey through the stories waiting on your shelf. Scroll to explore.
+                </p>
+                <div className='mt-8 h-1 w-16 md:w-20 bg-[#ffba66]'></div>
+            </div>
+
+            {/* RIGHT: Image Stack Animation */}
+            <div className='w-full md:w-[60%] h-[60vh] md:h-full flex items-center justify-center relative'>
+                {/* Background Text */}
+                <h1 className='absolute text-[15vw] font-bold text-white/[0.03] select-none pointer-events-none'>
+                    TBR
+                </h1>
+                
+                {/* Images */}
+                <div className='relative w-full h-full flex items-center justify-center'>
+                    {imgData.map((item, index) => (
+                        <img
+                            key={index}
+                            src={item.url}
+                            alt="Book Cover"
+                            className={`absolute w-40 md:w-64 rounded-lg shadow-2xl border border-white/10 transition-all duration-700 ease-out origin-center
+                                ${index <= activeImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-50 translate-y-20'}
+                            `}
+                            style={{ 
+                                transform: index <= activeImageIndex 
+                                    ? `rotate(${item.rotate})` 
+                                    : `rotate(${item.rotate}) translateY(100px)`,
+                                zIndex: item.z
+                            }}
+                        />
+                    ))}
+                </div>
+            </div>
+
+        </div>
       </div>
+
+      {/* --- LIST SECTION (Appears after scroll) --- */}
+      <div className='relative z-20 bg-[#170b01] pb-20 -mt-[20vh] md:-mt-0 rounded-t-[3rem] md:rounded-none shadow-[0_-50px_100px_rgba(0,0,0,1)]'>
+        
+        <div className="w-full flex justify-center pt-10 pb-4">
+             <TextReveal className='text-center font-bold font-playfair tracking-wider text-3xl md:text-4xl mb-10 text-[#ffba66]' text="Your To-Be-Read List"/>
+        </div>
+
+        <div ref={tbrRef} className='max-w-4xl mx-auto px-4 flex flex-col gap-4 min-h-[50vh]'>
+            {tbr.length === 0 ? (
+                <div className="text-white/40 text-center  py-20 italic">
+                    Your TBR shelf is dusty and empty... <br/>
+                    <span className="text-sm not-italic mt-2 block text-[#ffba66] cursor-pointer" onClick={() => navigate('/explore')}>Go add some books?</span>
+                </div>
+            ) : (
+                tbr.map((book, i) => (
+                    <div 
+                        key={book._id || i}
+                        onClick={() => navigate('/info', { state: { book } })}
+                        className='group  relative flex items-center h-28 md:h-36 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden hover:bg-[#ffba66]/10 hover:border-[#ffba66]/50 transition-all duration-300 cursor-pointer'
+                    >
+                        {/* Cover Image */}
+                        <div className='h-full w-20 md:w-28 shrink-0'>
+                            <img 
+                                src={book.coverImage || "https://placehold.co/100x150"} 
+                                alt={book.bookName} 
+                                className='h-full w-full object-cover group-hover:scale-105 transition-transform duration-500' 
+                            />
+                        </div>
+
+                        {/* Info */}
+                        <div className='flex-1 px-4 md:px-8 flex flex-col justify-center'>
+                            <div className="flex justify-between items-start w-full">
+                                <div>
+                                    <h3 className='text-lg md:text-2xl font-bold text-white group-hover:text-[#ffba66] transition-colors line-clamp-1'>
+                                        {book.bookName}
+                                    </h3>
+                                    <p className='text-xs md:text-sm text-white/60 italic'>{book.author}</p>
+                                </div>
+                                {book.totalPages > 0 && (
+                                    <span className="hidden md:inline-block text-[10px] uppercase tracking-widest border border-[#ffba66]/30 text-[#ffba66] px-2 py-1 rounded">
+                                        {book.totalPages} pgs
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Tags */}
+                            <div className="flex gap-2 mt-2 md:mt-3 flex-wrap">
+                                {(book.categories || ["General"]).slice(0, 3).map((cat, idx) => (
+                                    <span key={idx} className="text-[9px] md:text-[10px] uppercase tracking-wider text-white/50 border border-white/10 px-2 py-0.5 rounded-full">
+                                        {cat}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Arrow Icon */}
+                        <div className='pr-4 md:pr-6 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300'>
+                            <FaArrowAltCircleDown className='text-[#ffba66] text-xl md:text-2xl -rotate-90' />
+                        </div>
+                    </div>
+                ))
+            )}
+        </div>
+      </div>
+
     </div>
   );
 };
 
 export default Tbr;
-

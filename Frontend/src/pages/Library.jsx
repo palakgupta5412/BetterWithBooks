@@ -6,7 +6,6 @@ import Sidebar from "../components/Sidebar";
 import { getMyShelf, addToShelf, removeBook } from "../api/books.service";
 import { useToast } from "../context/ToastContext";
 
-// --- 1. THE CARD (Restored Design + Added Menu) ---
 const BookCard = ({ book, onMove, onDelete }) => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
@@ -117,7 +116,6 @@ const BookShelf = ({ title, books, onMove, onDelete }) => {
   );
 };
 
-// --- 3. MAIN LIBRARY PAGE ---
 const Library = () => {
   const [statusFilter, setStatusFilter] = useState("All Genres");
   const [allBooks, setAllBooks] = useState([]); // Stores fetched books

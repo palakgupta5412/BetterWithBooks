@@ -80,9 +80,9 @@ const Profile = () => {
 
       {/* DYNAMIC BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-         <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#ffba66] rounded-full mix-blend-overlay filter blur-[128px] opacity-20 animate-pulse"></div>
-         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0f0502] to-transparent"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#ffba66] rounded-full mix-blend-overlay filter blur-[128px] opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0f0502] to-transparent"></div>
       </div>
 
       <div className="relative z-10 flex-1 p-8 md:p-16 overflow-y-auto h-screen scrollbar-hide">

@@ -56,3 +56,13 @@ export const removeBook = async (googleBookId) => {
         throw error.response?.data || error.message;
     }
 };
+
+export const getAIRecommendations = async (bookNames) => {
+    try {
+        // bookNames is an array ["Harry Potter", "Percy Jackson"]
+        const response = await api.post('/books/recommendations', { favoriteBooks: bookNames });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};

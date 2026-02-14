@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'; // Import useState
 import { FaSearch } from "react-icons/fa";
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -13,10 +13,17 @@ import { useAuth } from '../context/AuthContext';
 const Home = () => {
     const navigate = useNavigate();
     const containerRef = React.useRef(null);
-    const {user , logout} = useAuth();
+    const { user } = useAuth();
+    
+    // 1. State for Search
+    const [searchQuery, setSearchQuery] = useState("");
 
-    const handleLogout = async () => {
-        await logout(); 
+    // 2. Handle Search Action
+    const handleSearch = () => {
+        if (searchQuery.trim()) {
+            // Navigate to Explore and pass the query in 'state'
+            navigate('/explore', { state: { autoSearch: searchQuery } });
+        }
     };
 
     useGSAP(()=>{
@@ -39,19 +46,30 @@ const Home = () => {
     <div className='stick text-[#D8CFC4] w-full bg-gradient-to-b from-[#2a1208] via-[#3b1a0a] to-[#2a1208] min-h-screen flex flex-col '>
         
         {/* --- NAVBAR AREA --- */}
-        {/* CHANGE: h-auto to allow wrapping, py-4 for spacing */}
         <div className='w-full flex justify-center p-2 items-center h-auto py-4 md:h-20'>
-            {/* CHANGE: flex-col on mobile (stack search & login), md:flex-row (side-by-side) */}
             <div className='w-full md:w-[90%] bg-transparent px-2 md:px-6 flex flex-col md:flex-row gap-4 justify-between items-center'>
                 
                 {/* SEARCH BAR CONTAINER */}
                 <div className="flex w-full md:w-auto items-center justify-center">
-                    <div className='text-white bg-[#100601]/60 backdrop-blur-lg p-2 rounded-l-md'>
+                    {/* Make Icon Clickable */}
+                    <div 
+                        onClick={handleSearch}
+                        className='text-white bg-[#100601]/60 backdrop-blur-lg p-2 rounded-l-md cursor-pointer hover:bg-[#ffba66] hover:text-black transition-colors'
+                    >
                         <FaSearch size={20} className="md:w-[27px] md:h-[27px]"/>
                     </div>
-                    {/* CHANGE: w-full on mobile (fill screen), md:w-96 on desktop */}
+                    
                     <div className='bg-[#100601]/60 backdrop-blur-lg p-2 w-full md:w-auto rounded-r-md'>
-                        <input type="text" placeholder='Search...' className='w-full md:w-96 h-full px-2 md:px-4 outline-none bg-transparent text-white placeholder-white/70 text-sm md:text-base'/>
+                        <input 
+                            type="text" 
+                            placeholder='Search...' 
+                            className='w-full md:w-96 h-full px-2 md:px-4 outline-none bg-transparent text-white placeholder-white/70 text-sm md:text-base'
+                            // Bind State
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            // Handle Enter Key
+                            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        />
                     </div>
                 </div>
 
@@ -60,7 +78,7 @@ const Home = () => {
                     {user ? 
                     <div className='flex items-center gap-2 p-2'>
                         <p className='text-[#D8CFC4] text-right text-xs p-2 flex items-center font-bold '>Hello, {user.name}</p>
-                        <img onClick={()=>navigate("/profile")} src={user.pfp || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className='w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border border-[#ffba66]' alt="" />
+                        <img onClick={()=>navigate("/profile")} src={user.pfp || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"} className='w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border border-[#ffba66] cursor-pointer' alt="" />
                     </div> : <Button onClick={()=>navigate('/login')} text={"Login"} className={"text-xs text-center"}/> }
                     
                     {!user && <Button onClick={()=>navigate('/login')} text={"Register"} className={"text-xs text-center ml-2"}/>}
@@ -68,20 +86,13 @@ const Home = () => {
             </div>
         </div>
 
-        {/* --- QUOTE SECTION --- */}
-        {/* CHANGE: h-auto on mobile (content fits), md:h-64. flex-col on mobile. */}
+        {/* --- REST OF YOUR CODE (Quote, Video, About, Footer) --- */}
         <div style={{backgroundImage: "url('https://res.cloudinary.com/dc8ryewn6/image/upload/v1770528335/quoteBG_sacg36.png')" , backgroundSize: "cover" , backgroundRepeat: "no-repeat" }} className='w-full h-auto md:h-64 overflow-hidden flex flex-col md:flex-row justify-between px-4 md:px-10 py-6 md:py-0'>
-            
-            {/* LEFT IMAGE: Hidden on mobile to save space, visible on desktop */}
             <div className='hidden md:flex w-1/2 h-full justify-start items-center pt-4'>
                 <img src="https://res.cloudinary.com/dc8ryewn6/image/upload/v1770528333/logoF_wtyi0t.png" className='object-cover' alt="Above Nav" />
             </div>
-
-            {/* RIGHT TEXT */}
-            {/* CHANGE: w-full on mobile, text-2xl on mobile, text-5xl on desktop */}
             <div ref={containerRef}  className='whitespace-nowrap overflow-hidden font-titan text-2xl md:text-5xl w-full md:w-1/2 text-center md:text-right text-[#D8CFC4] flex flex-col justify-center items-center md:items-end pt-4 md:pr-20 relative'>
                 <div className='flex relative gap-3 justify-center md:justify-start items-start'>
-                    {/* QUOTE MARKS SCALED DOWN */}
                     <span style={{transform : "rotate(180deg)"}} className='text-[10vh] md:text-[20vh] absolute -left-10 md:-left-20 -top-8 md:-top-20 font-passion inline-block opacity-50'>"</span>
                     <h1 style={{backgroundColor: "rgba(0, 0, 0, 0.35)"}} className='whitespace-nowrap overflow-hidden tracking-widest mb-2 z-10 px-2'>
                         Some Stories
@@ -94,7 +105,6 @@ const Home = () => {
             </div>
         </div>
 
-        {/* --- VIDEO HERO --- */}
         <div className="relative min-h-screen w-full overflow-hidden">
           <video autoPlay loop muted playsInline className="absolute top-0 left-0 w-full h-full object-cover z-0">
             <source src="https://res.cloudinary.com/dc8ryewn6/video/upload/v1770528335/hero_dbqkvx.mp4" type="video/mp4" />
