@@ -5,8 +5,12 @@ import { Quote } from "../models/quotes.model.js";
 
 // 1. Create Quote
 const createQuote = asyncHandler(async(req, res) => {
-    const { content, author, bookId, theme } = req.body; // theme is a string like "midnight-ink"
+    // 1. Destructure 'bookName' (what frontend sends), NOT 'bookId'
+    const { content, author, bookName, theme } = req.body; 
     const userId = req.user._id;
+
+    // 2. Debugging: Print what arrives (remove later)
+    console.log("Creating quote:", req.body); 
 
     if (!content || !author) {
         throw new ApiError(400, "Content and Author are required");
@@ -16,8 +20,8 @@ const createQuote = asyncHandler(async(req, res) => {
         content,
         author,
         user: userId,
-        book: bookId || null,
-        theme: theme || "classic-paper" // Save the theme ID
+        bookName: bookName || "", // Save the string
+        theme: theme || "classic-paper"
     });
 
     return res.status(201).json(
@@ -28,24 +32,19 @@ const createQuote = asyncHandler(async(req, res) => {
 // 2. Get My Quotes
 const getMyQuotes = asyncHandler(async(req, res) => {
     const quotes = await Quote.find({ user: req.user._id })
-        .sort({ createdAt: -1 })
-        .populate("book", "bookName coverImage");
+        .sort({ createdAt: -1 });
+    // REMOVED .populate("book") because bookName is now just a string in this collection
 
-    return res.status(200).json(
-        new ApiResponse(200, quotes, "Your quotes fetched successfully")
-    );
+    return res.status(200).json(new ApiResponse(200, quotes, "Fetched successfully"));
 });
 
 // 3. Get All Quotes
 const getAllQuotes = asyncHandler(async(req, res) => {
     const quotes = await Quote.find()
         .sort({ createdAt: -1 })
-        .populate("user", "name pfp")
-        .populate("book", "bookName coverImage");
+        .populate("user", "name pfp"); // Keep user populate, remove book populate
 
-    return res.status(200).json(
-        new ApiResponse(200, quotes, "Community quotes fetched successfully")
-    );
+    return res.status(200).json(new ApiResponse(200, quotes, "Fetched successfully"));
 });
 
 export { createQuote, getMyQuotes, getAllQuotes };

@@ -16,7 +16,7 @@ const Quotes = () => {
             </div>
             <div className='flex gap-4'>
                 <Button text="Create Quote" onClick={()=>{navigate('/createquote')}} className="text-sm" />
-                <Button text="All Quotes" onClick={()=>{navigate('/myquotes')}} className="text-sm" />
+                <Button text="All Quotes" onClick={()=>{navigate('/allquotes')}} className="text-sm" />
                 {/* <Button text="My Quotes" onClick={()=>{}} className="text-sm" /> */}
             </div>
         </div>

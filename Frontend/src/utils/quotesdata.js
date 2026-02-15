@@ -97,3 +97,12 @@ export const MY_QUOTES = [
         date: "2024-02-28"
     }
 ];
+
+// src/utils/mockQuotes.js
+export const STATIC_QUOTES = [
+    { id: 1, text: "I'm gonna make him an offer he can't refuse.", author: "The Godfather", book: "Mario Puzo" },
+    { id: 2, text: "The only way to do great work is to love what you do.", author: "Steve Jobs", book: "Biography" },
+    { id: 3, text: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.", author: "Jane Austen", book: "Pride and Prejudice" },
+    { id: 4, text: "All that we see or seem is but a dream within a dream.", author: "Edgar Allan Poe", book: "Collected Works" },
+    { id: 5, text: "We accept the love we think we deserve.", author: "Stephen Chbosky", book: "The Perks of Being a Wallflower" },
+];

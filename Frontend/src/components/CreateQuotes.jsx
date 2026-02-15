@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createQuote } from '../api/quote.service';
+import { useToast } from '../context/ToastContext';
+import { QUOTE_THEMES } from '../utils/quotesdata';
 
 const CreateQuotes = () => {
   const navigate = useNavigate();
+  const {addToast} = useToast();
 
   // 1. Setup State
   const [quoteText, setQuoteText] = useState('');
@@ -83,11 +87,31 @@ const CreateQuotes = () => {
   ];
 
   const [selectedTheme, setSelectedTheme] = useState(QUOTE_THEMES[0]);
+  const [loading , setLoading] = useState(false);
 
-  const handleSave = () => {
-    // Save logic...
-    console.log({ quoteText, authorName, bookName, theme: selectedTheme.id });
-    navigate(-1);
+  const handleSave = async () => {
+    if (!quoteText || !authorName) {
+       // alert("Quote and Author are required!"); // Fallback if no toast
+       addToast("Quote and Author are required!", "error");
+       return;
+    }
+
+    setLoading(true);
+    try {
+        await createQuote({
+            content: quoteText,
+            author: authorName,
+            bookName: bookName,
+            theme: selectedTheme.id
+        });
+        addToast("Quote Published!", "success");
+        navigate('/quotes'); // Go back to quotes list
+    } catch (error) {
+        console.error(error);
+        addToast("Failed to publish quote", "error");
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (

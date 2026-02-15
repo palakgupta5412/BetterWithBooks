@@ -12,6 +12,7 @@ import Explore from "./pages/Explore.jsx";
 import Profile from "./pages/Profile.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Recommendations from "./pages/Recommendations.jsx";
+import AllQuotes from "./pages/AllQuotes.jsx";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/info" element={<Info />} />
           <Route path='/profile' element={<Profile />} />
           <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/allquotes" element={<AllQuotes />} />
         </Route>
       </Routes>
     </>
