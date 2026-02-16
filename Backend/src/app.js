@@ -28,9 +28,9 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 // --- 2. IMPORT ROUTES (These were likely missing!) ---
-import userRouter from './routes/user.routes.js';
-import bookRouter from './routes/book.routes.js';
-import quoteRouter from './routes/quote.routes.js';
+import userRouter from './routes/user.router.js';
+import bookRouter from './routes/book.router.js';
+import quoteRouter from './routes/quotes.router.js';
 
 // --- 3. DECLARE ROUTES ---
 app.use("/api/v1/users", userRouter);
