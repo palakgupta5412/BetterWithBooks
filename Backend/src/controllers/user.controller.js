@@ -15,18 +15,19 @@ const generateAccessAndRefreshToken = async(userId) => {
     return { accessToken, refreshToken };
 }
 
-// --- CONFIG: Cookie Options for Localhost ---
-// secure: true ONLY works on HTTPS. On localhost (HTTP), it must be false.
+// --- CONFIG: Cookie Options ---
+// ⚠️ IMPORTANT: For Vercel/Render deployment, 'secure' MUST be true and 'sameSite' MUST be 'None'.
+// If you set secure: false in production, login will fail.
 const options = {
     httpOnly: true,
-    secure: false, // CHANGE TO FALSE FOR LOCALHOST
-    sameSite: "lax" 
+    secure: true,      // REQUIRED for Vercel/Render (HTTPS)
+    sameSite: "None",  // REQUIRED for Cross-Site (Vercel -> Render)
+    path: "/"          // Ensures cookie is valid for all routes
 };
 
-// 1. REGISTER (Now logs you in automatically!)
+// 1. REGISTER
 const register = asyncHandler( async (req, res) => {
     const { name , email , password } = req.body;
-    console.log("🔥 REGISTER ROUTE HIT 🔥");
 
     if([name , email , password].some((field)=>field?.trim() === "")){
         throw new ApiError(400 , "All fields are required");
@@ -49,13 +50,12 @@ const register = asyncHandler( async (req, res) => {
         throw new ApiError(500 , "Error creating user");
     }
 
-    // --- FIX: GENERATE TOKENS IMMEDIATELY ---
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(newUser._id);
 
     return res
     .status(201)
-    .cookie("accessToken", accessToken, options) // Send Cookie
-    .cookie("refreshToken", refreshToken, options) // Send Cookie
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(201 , { user: createdUser, accessToken, refreshToken } , "User registered and logged in")
     );
@@ -84,7 +84,7 @@ const login = asyncHandler( async (req, res) => {
 
     return res
     .status(200)
-    .cookie("accessToken" , accessToken , options) // Uses the HTTP-friendly options
+    .cookie("accessToken" , accessToken , options)
     .cookie("refreshToken" , refreshToken , options)
     .json(
         new ApiResponse(200 , { user : loggedUser , accessToken , refreshToken } , "User logged in successfully")
@@ -103,7 +103,7 @@ const logout = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, "User logged out successfully"));
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
 // 4. GET CURRENT USER
@@ -117,49 +117,23 @@ const getCurrentUser = asyncHandler(async(req, res) => {
     ));
 });
 
+// 5. CHANGE PASSWORD
 const changeCurrentPassword = asyncHandler(async(req, res) => {
-    console.log("--- CHANGE PASSWORD DEBUG START ---");
-    
-    // 1. Check if we received data
-    console.log("Req Body:", req.body);
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
-        console.log("Error: Missing passwords");
         throw new ApiError(400, "Old and New passwords are required");
     }
 
-    // 2. Check if we know who the user is
-    console.log("Req User:", req.user);
-    if (!req.user?._id) {
-        console.log("Error: User ID missing from request (verifyJWT failed?)");
-        throw new ApiError(401, "Unauthorized request");
-    }
-
-    // 3. Find User in DB
     const user = await User.findById(req.user._id);
-    if (!user) {
-        console.log("Error: User not found in DB");
-        throw new ApiError(404, "User not found");
-    }
-    console.log("User found:", user.email);
-
-    // 4. Check Password
-    console.log("Checking old password...");
-    // STOP HERE: If it crashes after this line, the issue is in user.model.js
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-    
-    console.log("Password Correct?", isPasswordCorrect);
     
     if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid old password");
     }
 
-    // 5. Save New Password
-    console.log("Saving new password...");
     user.password = newPassword;
     await user.save({ validateBeforeSave: false });
-    console.log("Success!");
 
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
 });
