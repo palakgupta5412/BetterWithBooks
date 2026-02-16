@@ -1,28 +1,22 @@
 import express from "express";
-import cookieParser from "cookie-parser";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
+// --- 1. ALLOWED ORIGINS (CORS) ---
 const allowedOrigins = [
     "http://localhost:5173",               // Your Local Frontend
     "https://better-with-books.vercel.app", // Your Vercel Frontend
-    // Add any other domains here if needed
 ];
 
-// --- 2. DYNAMIC CORS CONFIG ---
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like Postman or server-to-server)
         if (!origin) return callback(null, true);
-        
         if (allowedOrigins.indexOf(origin) === -1) {
-            // If the origin is NOT in the list, block it
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
             return callback(new Error(msg), false);
         }
-        
-        // If it IS in the list, allow it
         return callback(null, true);
     },
     credentials: true
@@ -33,12 +27,14 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}));
 app.use(express.static("public"));
 app.use(cookieParser());
 
-import userRouter from "./routes/user.router.js";
-import bookRouter from "./routes/book.router.js";
-import quotesRouter from "./routes/quotes.router.js";
+// --- 2. IMPORT ROUTES (These were likely missing!) ---
+import userRouter from './routes/user.routes.js';
+import bookRouter from './routes/book.routes.js';
+import quoteRouter from './routes/quote.routes.js';
 
-app.use("/users" , userRouter);
-app.use("/books" , bookRouter);
-app.use('/quotes' , quotesRouter);
+// --- 3. DECLARE ROUTES ---
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/books", bookRouter);
+app.use("/api/v1/quotes", quoteRouter);
 
-export {app} ;
+export { app };
