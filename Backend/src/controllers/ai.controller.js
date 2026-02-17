@@ -37,7 +37,7 @@ const getRecommendations = asyncHandler(async (req, res) => {
         const response = await result.response;
         const text = response.text();
 
-        console.log("AI Raw Response:", text); // Debug log to see what AI sent
+        // console.log("AI Raw Response:", text); // Debug log to see what AI sent
 
         // Cleanup: AI sometimes adds \`\`\`json at the start. We remove it.
         const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();

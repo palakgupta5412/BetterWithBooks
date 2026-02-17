@@ -10,10 +10,10 @@ dotenv.config({
 
 // --- CORRECT DEBUG LOGS ---
 console.log("DEBUG ENV CHECK:");
-console.log("- PORT:", process.env.PORT || "MISSING ❌");
+// console.log("- PORT:", process.env.PORT || "MISSING ❌");
 // Fix: Check 'MONGODB_URI', not 'MONGO'
-console.log("- MONGO:", process.env.MONGODB_URI ? "LOADED ✅" : "MISSING ❌"); 
-console.log("- GEMINI:", process.env.GEMINI_API_KEY ? "LOADED ✅" : "MISSING ❌");
+// console.log("- MONGO:", process.env.MONGODB_URI ? "LOADED ✅" : "MISSING ❌"); 
+// console.log("- GEMINI:", process.env.GEMINI_API_KEY ? "LOADED ✅" : "MISSING ❌");
 
 connectDB()
 .then(() => {

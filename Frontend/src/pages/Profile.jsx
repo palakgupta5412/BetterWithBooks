@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
+import { useNavigate } from 'react-router-dom'; // <--- 1. Import useNavigate
 import { useAuth } from '../context/AuthContext';
-import { getMyShelf, updateBookProgress, removeBook } from '../api/books.service'; // <--- Import removeBook
+import { getMyShelf, updateBookProgress, removeBook } from '../api/books.service'; 
 import { useToast } from '../context/ToastContext';
-import { FaSignOutAlt, FaCog, FaTrash } from "react-icons/fa"; // <--- Import FaTrash
+import { FaSignOutAlt, FaCog, FaTrash, FaArrowLeft } from "react-icons/fa"; // <--- 2. Import Arrow Icon
 import ChangePasswordModal from '../components/ChangePasswordModal.jsx';
 
 const Profile = () => {
+  const navigate = useNavigate(); // <--- 3. Initialize Hook
   const { user, logout } = useAuth();
   const { addToast } = useToast();
   
@@ -36,7 +37,6 @@ const Profile = () => {
   }, []);
 
   const handleUpdateProgress = async (book, newPage) => {
-    // Legacy ID support
     const bookId = book.googleBookId || book.googleBooksId || book._id;
     if (!bookId) return addToast("Error: Book ID missing", "error");
 
@@ -55,19 +55,15 @@ const Profile = () => {
     }
   };
 
-  // --- DELETE HANDLER ---
   const handleDelete = async (book) => {
     if(!window.confirm("Are you sure you want to remove this book?")) return;
 
     const bookId = book.googleBookId || book.googleBooksId || book._id;
     try {
         await removeBook(bookId);
-        
-        // Remove from UI immediately
         setReading(prev => prev.filter(b => 
             b.googleBookId !== bookId && b.googleBooksId !== bookId
         ));
-        
         addToast("Book removed.", "info");
     } catch (err) {
         console.error(err);
@@ -85,32 +81,41 @@ const Profile = () => {
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0f0502] to-transparent"></div>
       </div>
 
-      <div className="relative z-10 flex-1 p-8 md:p-16 overflow-y-auto h-screen scrollbar-hide">
+      {/* MAIN CONTENT AREA */}
+      <div className="relative z-10 flex-1 p-4 md:p-8 lg:p-16 overflow-y-auto h-screen scrollbar-hide">
         
+        {/* 4. BACK BUTTON ADDED HERE */}
+        <button 
+            onClick={() => navigate(-1)} 
+            className="mb-6 flex items-center gap-2 text-sm text-[#ffba66] hover:text-white hover:underline transition-all opacity-80 hover:opacity-100"
+        >
+            <FaArrowLeft /> Back
+        </button>
+
         {/* HEADER */}
-        <div className="flex justify-between items-end mb-16 border-b border-white/5 pb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-16 border-b border-white/5 pb-8 gap-6 md:gap-0">
             <div>
                 <h3 className="font-playfair italic text-[#ffba66] text-lg mb-2">The Protagonist</h3>
-                <h1 className="font-gravitas text-5xl md:text-6xl text-white">
+                <h1 className="font-gravitas text-4xl md:text-5xl lg:text-6xl text-white">
                     Hi, {user?.name?.split(' ')[0] || "Reader"}.
                 </h1>
-                <p className="mt-4 opacity-60 max-w-md leading-relaxed">
+                <p className="mt-4 opacity-60 max-w-md leading-relaxed text-sm md:text-base">
                     "A reader lives a thousand lives before he dies. The man who never reads lives only one."
                 </p>
             </div>
             
-            <div className="flex gap-4">
-                <button onClick={() => setIsSettingOpen(true)} className="flex items-center gap-2 px-4 py-2 border border-white/10 rounded-full hover:bg-white/5 transition text-sm">
+            <div className="flex gap-4 w-full md:w-auto">
+                <button onClick={() => setIsSettingOpen(true)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-white/10 rounded-full hover:bg-white/5 transition text-sm">
                     <FaCog /> Settings
                 </button>
-                <button onClick={logout} className="flex items-center gap-2 px-4 py-2 bg-red-900/20 text-red-400 border border-red-500/20 rounded-full hover:bg-red-900/40 transition text-sm">
+                <button onClick={logout} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-red-900/20 text-red-400 border border-red-500/20 rounded-full hover:bg-red-900/40 transition text-sm">
                     <FaSignOutAlt /> Logout
                 </button>
             </div>
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-12 md:mb-20">
             <StatCard label="To Be Read" count={tbr.length} subtitle="Stories waiting for you" delay={0.1} />
             <StatCard label="Reading Now" count={reading.length} subtitle="Worlds you are currently in" delay={0.2} active />
             <StatCard label="Finished" count={finished.length} subtitle="Journeys completed" delay={0.3} />
@@ -118,7 +123,7 @@ const Profile = () => {
 
         {/* CURRENTLY READING */}
         <div className="mb-20">
-            <h2 className="font-playfair text-3xl mb-8 flex items-center gap-4">
+            <h2 className="font-playfair text-2xl md:text-3xl mb-8 flex items-center gap-4">
                 <span className="w-8 h-[1px] bg-[#ffba66]"></span>
                 Currently Reading
             </h2>
@@ -128,13 +133,13 @@ const Profile = () => {
                     You aren't reading anything right now. Go exploring!
                 </div>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                     {reading.map((book, i) => (
                         <ProgressCard 
                             key={book.googleBookId || i} 
                             book={book} 
                             onUpdate={handleUpdateProgress} 
-                            onDelete={handleDelete} // <--- Pass Delete Handler
+                            onDelete={handleDelete} 
                         />
                     ))}
                 </div>
@@ -167,10 +172,10 @@ const AnimatedCounter = ({ end, duration = 2000 }) => {
 
 const StatCard = ({ label, count, subtitle, active, delay }) => (
     <div className={`p-6 rounded-2xl border ${active ? 'border-[#ffba66]/30 bg-[#ffba66]/5' : 'border-white/5 bg-white/5'} backdrop-blur-sm relative overflow-hidden group`} style={{ animation: `fadeInUp 1s ease-out ${delay}s backwards` }}>
-        <h2 className="text-5xl font-gravitas mb-2 group-hover:scale-105 transition-transform origin-left">
+        <h2 className="text-4xl md:text-5xl font-gravitas mb-2 group-hover:scale-105 transition-transform origin-left">
             <AnimatedCounter end={count} />
         </h2>
-        <h3 className={`text-lg font-bold uppercase tracking-widest ${active ? 'text-[#ffba66]' : 'text-gray-400'}`}>{label}</h3>
+        <h3 className={`text-base md:text-lg font-bold uppercase tracking-widest ${active ? 'text-[#ffba66]' : 'text-gray-400'}`}>{label}</h3>
         <p className="text-xs opacity-50 mt-1">{subtitle}</p>
         <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-[#ffba66]/10 transition-colors"></div>
     </div>
@@ -181,16 +186,20 @@ const ProgressCard = ({ book, onUpdate, onDelete }) => {
     const percent = Math.round((pageInput / (book.totalPages || 1)) * 100) || 0;
 
     return (
-        <div className="flex gap-6 p-6 bg-[#0f0502] border border-white/10 rounded-xl shadow-xl hover:border-[#ffba66]/30 transition-colors group relative">
-            <img src={book.coverImage} alt="" className="w-24 h-36 object-cover rounded shadow-lg" />
+        <div className="flex gap-4 md:gap-6 p-4 md:p-6 bg-[#0f0502] border border-white/10 rounded-xl shadow-xl hover:border-[#ffba66]/30 transition-colors group relative">
+            <img 
+                src={book.coverImage} 
+                alt="" 
+                className="w-20 h-32 md:w-24 md:h-36 object-cover rounded shadow-lg shrink-0" 
+            />
             
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="flex-1 flex flex-col justify-between overflow-hidden">
                 <div>
-                    <h3 className="font-bold text-xl font-playfair line-clamp-1 text-white">{book.bookName}</h3>
+                    <h3 className="font-bold text-lg md:text-xl font-playfair line-clamp-1 text-white">{book.bookName}</h3>
                     <p className="text-sm opacity-60 italic">{book.author}</p>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-2 md:mt-4">
                     <div className="flex justify-between text-xs mb-1 opacity-80">
                         <span>Progress</span>
                         <span>{percent}%</span>
@@ -200,30 +209,27 @@ const ProgressCard = ({ book, onUpdate, onDelete }) => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 mt-4">
-                    <span className="text-xs opacity-50 uppercase tracking-widest">Page</span>
+                <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3 md:mt-4">
+                    <span className="text-xs opacity-50 uppercase tracking-widest hidden sm:inline">Page</span>
                     <input 
                         type="number" 
                         value={pageInput}
                         onChange={(e) => setPageInput(Number(e.target.value))}
-                        className="w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-center text-sm focus:border-[#ffba66] outline-none"
+                        className="w-14 md:w-16 bg-white/5 border border-white/10 rounded px-2 py-1 text-center text-xs md:text-sm focus:border-[#ffba66] outline-none"
                     />
-                    <span className="text-xs opacity-50">/ {book.totalPages}</span>
+                    <span className="text-[10px] md:text-xs opacity-50 whitespace-nowrap">/ {book.totalPages}</span>
                     
-                    {/* BUTTON GROUP */}
                     <div className="ml-auto flex gap-2">
-                        {/* Update Button */}
                         <button 
                             onClick={() => onUpdate(book, pageInput)}
-                            className="text-xs bg-[#ffba66] text-black font-bold px-3 py-1 rounded hover:bg-white transition"
+                            className="text-xs bg-[#ffba66] text-black font-bold px-2 py-1 md:px-3 md:py-1 rounded hover:bg-white transition"
                         >
                             Update
                         </button>
 
-                        {/* Delete Button */}
                         <button 
                             onClick={() => onDelete(book)}
-                            className="text-xs bg-red-900/30 text-red-400 border border-red-500/30 px-3 py-1 rounded hover:bg-red-600 hover:text-white transition flex items-center justify-center"
+                            className="text-xs bg-red-900/30 text-red-400 border border-red-500/30 px-2 py-1 md:px-3 md:py-1 rounded hover:bg-red-600 hover:text-white transition flex items-center justify-center"
                             title="Remove book"
                         >
                             <FaTrash size={12} />

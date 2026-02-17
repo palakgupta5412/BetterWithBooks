@@ -18,6 +18,8 @@ const generateAccessAndRefreshToken = async(userId) => {
 // --- CONFIG: Cookie Options ---
 // ⚠️ IMPORTANT: For Vercel/Render deployment, 'secure' MUST be true and 'sameSite' MUST be 'None'.
 // If you set secure: false in production, login will fail.
+
+
 const options = {
     httpOnly: true,
     secure: true,      // REQUIRED for Vercel/Render (HTTPS)

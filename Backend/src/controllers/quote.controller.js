@@ -10,7 +10,7 @@ const createQuote = asyncHandler(async(req, res) => {
     const userId = req.user._id;
 
     // 2. Debugging: Print what arrives (remove later)
-    console.log("Creating quote:", req.body); 
+    // console.log("Creating quote:", req.body); 
 
     if (!content || !author) {
         throw new ApiError(400, "Content and Author are required");

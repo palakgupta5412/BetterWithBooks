@@ -55,13 +55,13 @@ const Login = () => {
                 });
             }
 
-            console.log("FULL API RESPONSE:", response);
+            // console.log("FULL API RESPONSE:", response);
 
             // Robust data extraction
             const backendResponse = response?.data || response; // Handle different axios structures
             const userRes = backendResponse?.data?.user || backendResponse?.user || backendResponse;
 
-            console.log("EXTRACTED USER:", userRes);
+            // console.log("EXTRACTED USER:", userRes);
 
             if (userRes && (userRes._id || userRes.email)) {
                 // 1. Update Auth Context
@@ -84,7 +84,7 @@ const Login = () => {
                     `Failed to ${mode === "login" ? "log in" : "register"}.`,
                     "error"
                 );
-                console.error("User data not found in response.");
+                // console.error("User data not found in response.");
                 setError("Login successful, but received invalid user data.");
             }
 

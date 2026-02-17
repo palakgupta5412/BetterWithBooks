@@ -28,7 +28,7 @@ export const addToShelf = async (bookData, status) => {
 export const getMyShelf = async () => {
     try {
         const response = await api.get('/books/my-shelf');
-        console.log(response);
+        // console.log(response);
         
         return response.data;
     } catch (error) {
