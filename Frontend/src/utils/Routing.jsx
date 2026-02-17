@@ -5,7 +5,7 @@ import Login from '../pages/Login.jsx'
 const Routing = () => {
   return (
     <Routes>
-        <Route path='/login' element={<Login />} />
+        {/* <Route path='/login' element={<Login />} /> */}
         
     </Routes>
   )
