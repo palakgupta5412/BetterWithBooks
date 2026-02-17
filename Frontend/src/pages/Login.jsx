@@ -1,4 +1,4 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import Button from '../components/Button';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
@@ -8,11 +8,8 @@ import { useToast } from '../context/ToastContext';
 
 const Login = () => {
 
-    const {addToast} = useToast();
-
+    const { addToast } = useToast(); // Use the hook
     const navigate = useNavigate();
-    
-    // --- FIX 1: Destructure 'login' correctly ---
     const { login } = useAuth(); 
 
     const [mode, setMode] = useState("login");
@@ -45,7 +42,6 @@ const Login = () => {
         try {
             let response;
             
-            // 1. Perform the API Request
             if (mode === "login") {
                 response = await loginUser({ 
                     email: formData.email, 
@@ -59,52 +55,56 @@ const Login = () => {
                 });
             }
 
-            // 2. DEBUGGING: Look at this in your browser console (F12)
             console.log("FULL API RESPONSE:", response);
 
-            // 3. ROBUST DATA EXTRACTION
-            // Sometimes axios returns response.data.data, sometimes just response.data
-            // We check both possibilities to be safe.
-            const backendResponse = response?.data; // The standard axios wrapper
-            
-            // Try to find the user object in the most common paths
+            // Robust data extraction
+            const backendResponse = response?.data || response; // Handle different axios structures
             const userRes = backendResponse?.data?.user || backendResponse?.user || backendResponse;
 
             console.log("EXTRACTED USER:", userRes);
 
-            // 4. Update Global State
             if (userRes && (userRes._id || userRes.email)) {
+                // 1. Update Auth Context
                 login(userRes);
-                addToast({
-                    type: "success",
-                    message: `Successfully ${mode === "login" ? "logged in" : "registered"}.`
-                });
+                
+                // --- 🔴 FIXED THIS SECTION 🔴 ---
+                // Old (Crashing): addToast({ type: "success", message: "..." })
+                // New (Working): addToast(message, type)
+                addToast(
+                    `Successfully ${mode === "login" ? "logged in" : "registered"}.`, 
+                    "success"
+                );
+                // --------------------------------
+
                 navigate("/");
                 
             } else {
-                addToast({
-                    type: "error",
-                    message: `Failed to ${mode === "login" ? "log in" : "register"}.`
-                })
+                // --- 🔴 FIXED ERROR TOAST TOO 🔴 ---
+                addToast(
+                    `Failed to ${mode === "login" ? "log in" : "register"}.`,
+                    "error"
+                );
                 console.error("User data not found in response.");
                 setError("Login successful, but received invalid user data.");
             }
 
         } catch (err) {
             console.error("Auth Error:", err);
-            setError(err.response?.data?.message || err.message || "Connection failed.");
+            const errorMessage = err.response?.data?.message || err.message || "Connection failed.";
+            setError(errorMessage);
+            
+            // --- 🔴 FIXED CATCH BLOCK TOAST 🔴 ---
+            addToast(errorMessage, "error");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        // CONTAINER: Mobile (p-4, flex-col) vs Desktop (p-20, flex-row)
-        // This keeps your original desktop spacing exact.
         <div className='w-full h-screen relative flex flex-col md:flex-row justify-center items-center p-4 md:p-20 md:px-44 overflow-hidden'>
-            
             <img src='/login.jpg' alt='Background' className='w-full h-full object-cover opacity-100 blur-sm inset-0 bg-black/70 absolute z-0' />
 
+            {/* Error Banner inside Form */}
             {error && (
                 <div className="absolute top-10 z-50 bg-red-600 text-white px-6 py-2 rounded shadow-lg animate-bounce">
                     {error}
@@ -154,7 +154,6 @@ const Login = () => {
                     />
                 </form>
 
-                {/* Mobile Toggle Text (Only shows on phone) */}
                 <div className="md:hidden mt-4 text-white text-sm">
                     {mode === "register" ? "Already have an account?" : "No account yet?"}
                     <button onClick={toggleMode} className="ml-2 text-[#ffba66] font-bold underline">
@@ -163,9 +162,6 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* --- RIGHT PANEL (Info Slider) --- */}
-            {/* hidden md:flex -> Completely removes this on mobile to save space */}
-            {/* On Desktop, it is exactly 50% width to match the form for perfect symmetry */}
             <div className={`
                 hidden md:flex 
                 flex-col gap-8 justify-center items-center 
@@ -177,15 +173,12 @@ const Login = () => {
                 <h2 className='text-xl font-bold font-gravitas mb-4 text-black'>
                     {mode === "register" ? "Already have an account?" : "No Account? Create one."}
                 </h2>
-                
                 <h3 className='text-xl font-bold text-center w-full font-playfair text-black px-10'>
                     {mode === "register" ? "Become a part of your own story." : "Let's dive into your world of books."}
                 </h3>
-                
                 <h4 className="text-gray-800 font-medium text-center px-10">
                     {mode === "register" ? "Sign up and start curating your book universe." : "Log in and start your reading journey."}
                 </h4>
-                
                 <Button 
                     onClick={toggleMode} 
                     text={mode === "register" ? "Login" : "Register"} 
